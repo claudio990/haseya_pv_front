@@ -1,0 +1,8 @@
+<div class="main">
+    <p class="text">Terminar turno turno</p>
+    <form class="form" action="" [formGroup]="addForm">
+      <label for="">Ingresar monto en caja: </label>
+      <input type="number" placeholder="Monto en caja" class="input_form"  formControlName="money_ingresed">
+      <button class="btn" (click)="onSubmit()">Finalizar Turno</button>
+    </form>
+  </div>

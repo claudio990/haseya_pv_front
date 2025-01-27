@@ -1,0 +1,12 @@
+<div class="main">
+    <p class="text">Añadir abono en este ticket</p>
+    <form class="form" action="" [formGroup]="addForm">
+      <label for="">Ingresar monto abonado: </label>
+      <input type="number" placeholder="Monto a abonar" class="input_form"  formControlName="abonado">
+      <label for="">Tipo de pago: </label>
+      <select name="" id="" class="form-select" style="width: 80%; margin: auto;" formControlName="type">
+          <option *ngFor="let type of types; index as i" value="{{type.id}}">{{type.name}}</option>
+      </select>
+      <button class="btn" (click)="onSubmit()">Agregar abono</button>
+    </form>
+  </div>

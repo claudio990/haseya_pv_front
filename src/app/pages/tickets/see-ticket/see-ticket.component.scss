@@ -1,0 +1,128 @@
+.main
+{
+    display: flex;
+    flex-direction: column;
+}
+
+.table_main
+{
+    margin: auto;
+}
+
+.mat-mdc-table
+{
+    background-color: white !important;
+    width: 70vw;
+    color: black !important;
+}
+
+.head_main
+{
+    height: 100px;
+    display: flex;
+    position: relative;
+    button
+    {
+        right: 0;
+        position: absolute;
+        margin-top: 30px;
+        margin-right: 30px;
+    }
+    h3
+    {
+        margin-left: 30px;
+        margin-top: 30px;
+    }
+}
+
+
+.mat-mdc-form-field{
+    width: 100%;
+}
+
+.mat-mdc-header-row
+{
+    color: black !important;
+}
+
+.mat-mdc-row
+{
+    color: black !important;
+}
+
+.mat-mdc-paginator
+{
+    background-color: white !important;
+    color: black !important;
+}
+
+
+.options
+{
+    text-decoration: none;
+    background-color: transparent;
+    // border: 1px solid #3f3f3f;
+    border-radius: 25%;
+    padding: 10px;
+    font-size: 25px;
+    cursor: pointer;
+}
+
+
+.ticket
+{
+  width: 612px;
+  display: flex;
+  flex-direction: column;
+  .head{
+    position: relative;
+    .logo
+    {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      img
+      {  
+        width: auto;
+        height: 120px;
+        margin-bottom: 20px;
+      }
+      p
+      {
+        font-weight: bold;
+        font-size: 16px;
+      }
+    }
+
+    .inf
+    {
+      position: absolute;
+      right: 10px;
+      .qr
+      {
+        width: 150px;
+      }
+    }
+  }
+
+  .table_ticket
+  {
+    margin-top: 280px;
+    margin-left: 10px;
+    // width: 580px;
+
+    th
+    {
+      background-color: #252525;
+      color: #f8f8f8;
+    }
+
+    td
+    {
+      border: 1px solid #252525;
+    }
+    // tfoot th {
+    //   text-align: right;
+    // }
+  }
+}

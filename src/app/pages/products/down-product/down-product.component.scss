@@ -1,0 +1,56 @@
+
+.start
+{
+  display: flex;
+  flex-direction: column;
+  .text
+  {
+    font-size: 30px;
+    color: #252525;
+    margin: auto;
+    margin-top: 200px;
+  }
+  .quantity
+  {
+    font-size: 24px;
+    margin: auto;
+    margin-top: 30px;
+    border-bottom: 2px solid #F6B5B1;
+  }
+}
+
+.form
+{
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+    margin: auto;
+    input
+    {
+        width: 80%;
+        height: 40px;
+        border: 0px;
+        background-color: rgba(198, 198, 198, 0.5);
+        border-radius: 5px;
+        color: rgb(20, 20, 20);
+        margin: 10px auto;
+        
+    }
+    button
+    {
+        background-color: #F6B5B1;
+        color: white;
+        width: 80%;
+        margin: 10px auto;
+        border-radius: 5px;
+    }
+    a
+    {
+        text-decoration: none;
+        margin: 10px auto;
+    }
+    label
+    {
+        margin-left: 10%;
+    }
+}

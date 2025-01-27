@@ -1,0 +1,13 @@
+<div class="back">
+    <div class="head_main">
+        <h3>Categorías</h3>
+        <button mat-raised-button [routerLink]="['../category']">Regresar</button>
+    </div>
+    <div class="login">
+        <form action="" class="form" [formGroup]="addForm">
+            <label for="">Nombre: </label>
+            <input type="text" placeholder="Nombre" class="input_form"  formControlName="name">
+            <button class="btn" (click)="onSubmit()">Agregar</button>
+        </form>
+    </div>
+</div>

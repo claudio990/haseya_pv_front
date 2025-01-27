@@ -1,0 +1,15 @@
+<div class="back">
+    <div class="head_main">
+        <h3>Añadir Cliente</h3>
+        <button mat-raised-button [routerLink]="['../client']">Regresar</button>
+    </div>
+    <div class="login">
+        <form action="" class="form" [formGroup]="addForm">
+            <label for="">Nombre: </label>
+            <input type="text" placeholder="Nombre" class="input_form"  formControlName="name">
+            <label for="">Celular: </label>
+            <input type="text" placeholder="Celular" class="input_form"  formControlName="cellphone">
+            <button class="btn" (click)="onSubmit()">Agregar</button>
+        </form>
+    </div>
+</div>

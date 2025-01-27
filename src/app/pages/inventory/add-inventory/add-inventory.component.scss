@@ -1,0 +1,77 @@
+$main-one: #F6B5B1;
+$main-two: #252525;
+
+
+.main
+{
+    width: 500px;
+    height: 500px;
+}
+
+.title
+{
+    font-size: 17px;
+    font-weight: 600;
+    margin-top: 10px;
+    margin-left: 10px;
+    color: #252525;
+    text-align: center;
+}
+
+.elections
+{
+    display: flex;
+    padding: 10px;
+}
+.election
+{
+    width: 200px;
+    height: 150px;
+    background-color: white;
+    box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.5);
+    border-radius: 5px;
+    margin: 0px auto;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+
+    .number
+    {
+        font-size: 40px;
+        font-weight: bold;
+        color: pink;
+        margin: auto;
+    }
+    .text_number
+    {
+        margin: 0px auto;
+    }
+    form
+    {
+        display: flex;
+        flex-direction: column;
+        p
+        {
+            margin: auto;
+            font-size: 16px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        input
+        {
+            margin: auto;
+            width: 80%;
+            margin-top: 10px;
+        }
+        button
+        {
+            color: white;
+            border: 0px;
+            border-radius: 4px;
+            background-color: $main-one;
+            width: 80%;
+            margin: auto;
+            margin-top: 10px;
+        }
+    }
+}

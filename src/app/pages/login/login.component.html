@@ -1,0 +1,11 @@
+<div class="back">
+    <div class="login">
+        <img src="https://haseya-accesorios.com/haseya-pv/haseya-admin/assets/img/logo.jpg" alt="">
+        <form action="" class="form" [formGroup]="loginForm">
+            <input type="text" placeholder="Correo" class="input_form"  formControlName="email">
+            <input type="password" placeholder="Password" class="input_form"  formControlName="password">
+            <button class="btn" (click)="onSubmit()">Entrar</button>
+            <!-- <a href="" class="reset" >Restablecer contraseña</a> -->
+        </form>
+    </div>
+</div>

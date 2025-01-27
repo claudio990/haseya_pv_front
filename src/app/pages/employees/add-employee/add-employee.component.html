@@ -1,0 +1,19 @@
+<div class="back">
+    <div class="head_main">
+        <h3>Añadir Empleado</h3>
+        <button mat-raised-button [routerLink]="['../employees']">Regresar</button>
+    </div>
+    <div class="login">
+        <form action="" class="form" [formGroup]="addForm">
+            <label for="">Nombre: </label>
+            <input type="text" placeholder="Nombre" class="input_form"  formControlName="firstname">
+            <label for="">Apellido: </label>
+            <input type="text" placeholder="Nombre" class="input_form"  formControlName="lastname">
+            <label for="">Correo: </label>
+            <input type="text" placeholder="Nombre" class="input_form"  formControlName="email">
+            <label for="">Contraseña: </label>
+            <input type="text" placeholder="Nombre" class="input_form"  formControlName="password">
+            <button class="btn" (click)="onSubmit()">Agregar</button>
+        </form>
+    </div>
+</div>

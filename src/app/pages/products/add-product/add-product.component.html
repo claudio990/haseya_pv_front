@@ -1,0 +1,26 @@
+<div class="back">
+    <div class="head_main">
+        <h3>Añadir Producto</h3>
+        <button mat-raised-button [routerLink]="['../products']">Regresar</button>
+    </div>
+    <div class="login">
+        <form action="" class="form" [formGroup]="addForm">
+            <label for="">Código: </label>
+            <input type="text" placeholder="Código" class="input_form"  formControlName="code">
+            <label for="">Nombre: </label>
+            <input type="text" placeholder="Nombre" class="input_form"  formControlName="name">
+            <label for="">Costo: </label>
+            <input type="text" placeholder="Costo" class="input_form"  formControlName="cost">
+            <label for="">Cantidad: </label>
+            <input type="text" placeholder="Cantidad" class="input_form"  formControlName="quantity">
+            <label for="">Categoría: </label>
+            <select name="" id="" class="form-select" style="width: 80%; margin: auto;" formControlName="category">
+                <option value="0">-- Sin Categoría --</option>
+                <option *ngFor="let catego of categorias; index as i" value="{{catego.id}}">{{catego.name}}</option>
+            </select>
+            <label for="">Imagen: </label>
+            <input type="file"  (change)="filefn($event)"  formControlName="image">
+            <button class="btn" (click)="onSubmit()">Agregar</button>
+        </form>
+    </div>
+</div>

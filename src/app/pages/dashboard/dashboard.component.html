@@ -1,0 +1,89 @@
+<div class="main">
+    <div class="sells">
+        <div class="sell">
+            <div class="icon">
+                <i class="bi bi-file-bar-graph-fill"></i>
+            </div>
+
+            <div class="inf">
+                <p class="amount">$ {{dashboard.day}}</p>
+                <p class="text">Ventas del Día</p>
+            </div>
+        </div>
+
+        <div class="sell">
+            <div class="icon">
+                <i class="bi bi-calendar2-week-fill"></i>
+            </div>
+
+            <div class="inf">
+                <p class="amount">$ {{dashboard.weekly}}</p>
+                <p class="text">Ventas últimos 7 días</p>
+            </div>
+        </div>
+
+        <div class="sell">
+            <div class="icon">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+
+            <div class="inf">
+                <p class="amount">$ {{dashboard.monthly}}</p>
+                <p class="text">Ventas de este Mes</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="table_main" style="margin-top: 50px;">
+        <h3>Vendedoras</h3>
+        <mat-form-field>
+        <mat-label>Filter</mat-label>
+        <input matInput (keyup)="applyFilter($event)" placeholder="Ex. Mia" #input>
+        </mat-form-field>
+        
+        <div class="mat-elevation-z8">
+        <table mat-table [dataSource]="dataSource" matSort>
+        
+            <!-- Name Column -->
+            <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Nombre </th>
+            <td mat-cell *matCellDef="let row"> {{row.name}} </td>
+            </ng-container>
+
+            <!-- ID Column -->
+            <ng-container matColumnDef="day">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Hoy </th>
+            <td mat-cell *matCellDef="let row"> {{row.day}} </td>
+            </ng-container>
+
+            <!-- ID Column -->
+            <ng-container matColumnDef="week">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Últimos 7 días </th>
+                <td mat-cell *matCellDef="let row"> {{row.week}} </td>
+                </ng-container>
+                
+                <!-- ID Column -->
+            <ng-container matColumnDef="month">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Este mes </th>
+                <td mat-cell *matCellDef="let row"> {{row.month}} </td>
+                </ng-container>
+        
+        
+        
+         
+
+        
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        
+            <!-- Row shown when there is no matching data. -->
+            <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="4">No data matching the filter "{{input.value}}"</td>
+            </tr>
+        </table>
+        
+        <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
+        </div>
+
+    </div>
+</div>

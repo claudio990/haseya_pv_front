@@ -1,0 +1,57 @@
+$main-one: #F6B5B1;
+$main-two: #252525;
+
+.back
+{
+    display: flex;
+    height: 100%;
+    width: 100%;
+
+    .login
+    {
+        margin: auto;
+        height: 30rem;
+        width: 25rem;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0px 0px 15px 0px $main-one;
+        display: flex;
+        flex-direction: column;
+    }
+    img
+    {
+        max-width: 150px;
+        margin: 20px auto 30px auto;
+    }
+}
+
+.form
+{
+    display: flex;
+    flex-direction: column;
+
+    input
+    {
+        width: 80%;
+        height: 40px;
+        border: 0px;
+        background-color: rgba($main-one, 0.7);
+        border-radius: 5px;
+        color: white;
+        margin: 10px auto;
+        
+    }
+    button
+    {
+        background-color: $main-two;
+        color: white;
+        width: 80%;
+        margin: 10px auto;
+        border-radius: 5px;
+    }
+    a
+    {
+        text-decoration: none;
+        margin: 10px auto;
+    }
+}

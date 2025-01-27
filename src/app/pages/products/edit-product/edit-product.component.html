@@ -1,0 +1,28 @@
+<div class="back">
+    <div class="head_main">
+        <h3>Producto {{info.name}}</h3>
+        <button mat-raised-button [routerLink]="['../../products', info.id_line]">Regresar</button>
+    </div>
+    <div class="login">
+        <form action="" class="form" [formGroup]="addForm">
+            <label for="">Código: </label>
+            <input type="text" placeholder="Código" class="input_form" value="{{info.code}}"  formControlName="code">
+            <label for="">Nombre: </label>
+            <input type="text" placeholder="Nombre" class="input_form" value="{{info.name}}"  formControlName="name">
+            <label for="">Costo: </label>
+            <input type="text" placeholder="Nombre" class="input_form" value="{{info.cost}}"  formControlName="cost">
+            <label for="">Cantidad: </label>
+            <input type="text" placeholder="Nombre" class="input_form" value="{{info.quantity}}"  formControlName="quantity">
+            <label for="">Categoría: </label>
+            <select [(ngModel)]="info.id_category" name="current" class="form-select" style="width: 80%; margin: auto;" formControlName="category">
+                <option *ngFor="let catego of categories; index as i" [ngValue]="catego.id">{{catego.name}}</option>
+                <!-- <option value="0">-- Sin Categoría --</option> -->
+            </select>
+            <label for="">Imagen: </label>
+            <input type="file"  (change)="filefn($event)"  formControlName="image">
+            <label for="">Imagen Actual: </label>
+            <img src="http://localhost:8000/storage/products/{{info.image}}" alt="">
+            <button class="btn" (click)="onSubmit()">Confirmar</button>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,15 @@
+<div class="back">
+    <div class="head_main">
+        <h3>Cliente: {{info.name}}</h3>
+        <button mat-raised-button [routerLink]="['../../client']">Regresar</button>
+    </div>
+    <div class="login">
+        <form action="" class="form" [formGroup]="addForm">
+            <label for="">Nombre: </label>
+            <input type="text" placeholder="Nombre" class="input_form" value="{{info.name}}" formControlName="name">
+            <label for="">Celular: </label>
+            <input type="text" placeholder="Nombre" class="input_form" value="{{info.cellphone}}"  formControlName="cellphone">
+            <button class="btn" (click)="onSubmit()">Confirmar</button>
+        </form>
+    </div>
+</div>

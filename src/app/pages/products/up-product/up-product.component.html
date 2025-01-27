@@ -1,0 +1,10 @@
+<div class="start">
+    <p class="text">Producto para dar altas: {{product.code}}</p>
+    <p class="quantity" style="margin-bottom: 40px;">Cantidad Actual: {{product.quantity}}</p>
+    
+    <form class="form" action="" [formGroup]="formStartBox">
+      <label for="">Ingresar cantidad a dar de alta: </label>
+      <input type="text" placeholder="Cantidad" class="input_form"  formControlName="quantity">
+      <button class="btn" (click)="onSubmit()">Dar de alta</button>
+    </form>
+  </div>

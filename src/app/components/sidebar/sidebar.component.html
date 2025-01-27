@@ -1,0 +1,78 @@
+<div [ngClass]="{'side': storage.bandActive, 'noside' :!storage.bandActive}">
+    <div class="logo" (click)="change()">
+        <img src="https://haseya-accesorios.com/haseya-pv/haseya-admin/assets/img/logo.jpg" alt="">
+    </div>
+    <div class="pages">
+        <div class="page">
+            <a href="" class="" [routerLink]="['dashboard']">
+                <i class="bi bi-house"></i>
+                <p *ngIf="storage.bandActive">Dashboard</p>
+            </a>
+        </div>
+
+        <div class="page" *ngIf="bandAdmin">
+            <a href="" class="" [routerLink]="['employees']">
+                <i class="bi bi-person-lines-fill"></i>
+                <p *ngIf="storage.bandActive">Empleados</p>
+            </a>
+        </div>
+
+        <div class="page" *ngIf="bandAdmin">
+            <a href="" class="" [routerLink]="['category']">
+                <i class="bi bi-bookmark"></i>
+                <p *ngIf="storage.bandActive">Categorías</p>
+            </a>
+        </div>
+
+
+        <div class="page" *ngIf="bandAdmin">
+            <a href="" class="" [routerLink]="['client']">
+                <i class="bi bi-file-person-fill"></i>
+                <p *ngIf="storage.bandActive">Clientes</p>
+            </a>
+        </div>
+
+        <div class="page" *ngIf="bandAdmin">
+            <a href="" class=""  [routerLink]="['products']">
+                <i class="bi bi-tags"></i>
+                <p *ngIf="storage.bandActive">Productos</p>
+            </a>
+        </div>
+
+        <div class="page" *ngIf="bandAdmin">
+            <a href="" class=""  [routerLink]="['inventory']">
+                <i class="bi bi-file-diff"></i>
+                <p *ngIf="storage.bandActive">Inventario</p>
+            </a>
+        </div>
+
+        <div class="page" >
+            <a href="" class=""  [routerLink]="['pv']">
+                <i class="bi bi-shop"></i>
+                <p *ngIf="storage.bandActive">Punto de Venta</p>
+            </a>
+        </div>
+        <div class="page" *ngIf="bandAdmin">
+            <a href="" class=""  [routerLink]="['sells']">
+                <i class="bi bi-bag"></i>
+                <p *ngIf="storage.bandActive">Ventas</p>
+            </a>
+        </div>
+
+      
+        <div class="page" >
+            <button class="Btn" (click)="logOut()">
+  
+                <div class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z"></path></svg></div>
+                
+                <div class="text">Salir</div>
+              </button>
+              
+            <!-- <a href="" class="" (click)="logOut()">
+                <i class="bi bi-box-arrow-in-left"></i>
+                <p *ngIf="storage.bandActive">Log Out</p>
+            </a> -->
+        </div>
+
+    </div>
+</div>

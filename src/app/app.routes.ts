@@ -29,6 +29,7 @@ import { UpProductComponent } from './pages/products/up-product/up-product.compo
 import { DownProductComponent } from './pages/products/down-product/down-product.component';
 import { DownProductsComponent } from './pages/products/down-products/down-products.component';
 import { AbonosComponent } from './pages/tickets/abonos/abonos.component';
+import { StoresComponent } from './pages/stores/stores.component';
 
 export const routes: Routes = [
     {
@@ -114,6 +115,9 @@ export const routes: Routes = [
             },
             {
                 path: 'abonos', component: AbonosComponent
+            },
+            {
+                path: 'tiendas', component: StoresComponent
             }
         ]
     },

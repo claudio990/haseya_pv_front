@@ -1,6 +1,6 @@
 <div [ngClass]="{'side': storage.bandActive, 'noside' :!storage.bandActive}">
     <div class="logo" (click)="change()">
-        <img src="https://haseya-accesorios.com/haseya-pv/haseya-admin/assets/img/logo.jpg" alt="">
+        <img src="../../../assets/img/alasflautas.png" alt="">
     </div>
     <div class="pages">
         <div class="page">
@@ -11,13 +11,20 @@
         </div>
 
         <div class="page" *ngIf="bandAdmin">
+            <a href="" class="" [routerLink]="['tiendas']">
+                <i class="bi bi-shop"></i>
+                <p *ngIf="storage.bandActive">Tiendas</p>
+            </a>
+        </div>
+
+        <!-- <div class="page" *ngIf="bandAdmin">
             <a href="" class="" [routerLink]="['employees']">
                 <i class="bi bi-person-lines-fill"></i>
                 <p *ngIf="storage.bandActive">Empleados</p>
             </a>
-        </div>
+        </div> -->
 
-        <div class="page" *ngIf="bandAdmin">
+        <!-- <div class="page" *ngIf="bandAdmin">
             <a href="" class="" [routerLink]="['category']">
                 <i class="bi bi-bookmark"></i>
                 <p *ngIf="storage.bandActive">Categorías</p>
@@ -57,7 +64,7 @@
                 <i class="bi bi-bag"></i>
                 <p *ngIf="storage.bandActive">Ventas</p>
             </a>
-        </div>
+        </div> -->
 
       
         <div class="page" >

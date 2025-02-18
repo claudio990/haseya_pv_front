@@ -1,0 +1,7 @@
+<div class="store-container">
+    <h2>Tiendas</h2>
+    <button (click)="addStore()">Añadir Tienda</button>
+    <ul>
+      <li *ngFor="let store of stores">{{ store.name }}</li>
+    </ul>
+  </div>

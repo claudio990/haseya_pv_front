@@ -1,41 +1,137 @@
-.store-container {
-    max-width: 400px;
-    margin: 20px auto;
-    padding: 20px;
-    background: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-  
-  h2 {
-    color: #333;
-  }
-  
-  button {
-    background: #252525;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-  
-  button:hover {
-    background: #F6B5B1;
-    color: #252525;
-  }
-  
-  ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  li {
-    background: white;
-    margin: 5px 0;
+.main
+{
+    display: flex;
+    flex-direction: column;
+}
+
+.table_main
+{
+    margin: auto;
+}
+
+.mat-mdc-table
+{
+    background-color: white !important;
+    width: 70vw;
+    color: black !important;
+}
+
+.head_main
+{
+    height: 100px;
+    display: flex;
+    position: relative;
+    button
+    {
+        right: 0;
+        position: absolute;
+        margin-top: 30px;
+        margin-right: 30px;
+    }
+    h3
+    {
+        margin-left: 30px;
+        margin-top: 30px;
+    }
+}
+
+
+.mat-mdc-form-field{
+    width: 100%;
+}
+
+.mat-mdc-header-row
+{
+    color: black !important;
+}
+
+.mat-mdc-row
+{
+    color: black !important;
+}
+
+.mat-mdc-paginator
+{
+    background-color: white !important;
+    color: black !important;
+}
+
+
+.options
+{
+    text-decoration: none;
+    background-color: transparent;
+    // border: 1px solid #3f3f3f;
+    border-radius: 25%;
     padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  }
+    font-size: 25px;
+    cursor: pointer;
+}.main
+{
+    display: flex;
+    flex-direction: column;
+}
+
+.table_main
+{
+    margin: auto;
+}
+
+.mat-mdc-table
+{
+    background-color: white !important;
+    width: 70vw;
+    color: black !important;
+}
+
+.head_main
+{
+    height: 100px;
+    display: flex;
+    position: relative;
+    button
+    {
+        right: 0;
+        position: absolute;
+        margin-top: 30px;
+        margin-right: 30px;
+    }
+    h3
+    {
+        margin-left: 30px;
+        margin-top: 30px;
+    }
+}
+
+
+.mat-mdc-form-field{
+    width: 100%;
+}
+
+.mat-mdc-header-row
+{
+    color: black !important;
+}
+
+.mat-mdc-row
+{
+    color: black !important;
+}
+
+.mat-mdc-paginator
+{
+    background-color: white !important;
+    color: black !important;
+}
+
+
+.options
+{
+    text-decoration: none;
+    background-color: transparent;
+    // border: 1px solid #3f3f3f;
+    border-radius: 25%;
+    padding: 10px;
+    font-size: 25px;
+    cursor: pointer;
+}

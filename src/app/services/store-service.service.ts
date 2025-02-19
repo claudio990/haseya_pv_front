@@ -17,9 +17,9 @@ export class StoreServiceService {
   constructor(private http: HttpClient, private httpService: HttpService) { }
 
 
-  getStores(query:any)
+  getStores()
   {
-    return this.httpService.ejectQuery('getStores', query);
+    return this.httpService.ejectQuery('getStores');
   }
   getStore(query:any)
   {
@@ -27,14 +27,14 @@ export class StoreServiceService {
   }
   addStore(query:any)
   {
-    return this.httpService.ejectQuery('addStore', query);
+    return this.httpService.ejectPost('addStore', query);
   }
   editStore(query:any)
   {
-    return this.httpService.ejectQuery('editStore', query);
+    return this.httpService.ejectPost('editStore', query);
   }
   deleteStore(query:any)
   {
-    return this.httpService.ejectQuery('deleteStore', query);
+    return this.httpService.ejectPost('deleteStore', query);
   }
 }

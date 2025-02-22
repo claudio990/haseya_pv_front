@@ -19,7 +19,7 @@ import { UserService } from '../../services/user.service';
   styleUrl: './employees.component.scss'
 })
 export class EmployeesComponent implements OnInit{
-  displayedColumns: string[] = ['name', 'email', 'options'];
+  displayedColumns: string[] = ['name', 'email', 'type', 'store', 'options'];
   dataSource: MatTableDataSource<any>;
   users: any = [];
 
@@ -36,7 +36,16 @@ export class EmployeesComponent implements OnInit{
   ngOnInit() {
     this.service.getEmployees().subscribe((res:any) => {
       res.map((key: any) => {
-        this.users.push({id: key.id, name: key.firstname + ' ' + key.lastname, email: key.email})
+
+        const type = key.type == 'waiter' ? 'Mesero' : 'Gerente'
+        this.users.push(
+          {
+            id: key.id, 
+            name: key.firstname + ' ' + key.lastname, 
+            email: key.email, 
+            type: type, 
+            store: key.store_name
+          })
       })
 
       this.dataSource = new MatTableDataSource(this.users);

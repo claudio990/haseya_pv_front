@@ -26,6 +26,16 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Correo </th>
             <td mat-cell *matCellDef="let row"> {{row.email}} </td>
             </ng-container>
+
+            <ng-container matColumnDef="type">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Rol </th>
+                <td mat-cell *matCellDef="let row"> {{row.type}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="store">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Tienda </th>
+                <td mat-cell *matCellDef="let row"> {{row.store}} </td>
+            </ng-container>
         
          
 

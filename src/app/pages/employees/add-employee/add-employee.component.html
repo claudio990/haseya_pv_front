@@ -13,6 +13,16 @@
             <input type="text" placeholder="Nombre" class="input_form"  formControlName="email">
             <label for="">Contraseña: </label>
             <input type="text" placeholder="Nombre" class="input_form"  formControlName="password">
+            <label for="">Tienda: </label>
+            <select name="" id="" formControlName="store">
+                <option *ngFor="let store of stores" value="{{store.id}}">{{store.name}}</option>
+            </select>
+            <label for="">Tipo de empleado: </label>
+            <select name="" id="" formControlName="type">
+                <option value="waiter">Mesero</option>
+                <option value="manager">Gerente</option>
+            </select>
+            
             <button class="btn" (click)="onSubmit()">Agregar</button>
         </form>
     </div>

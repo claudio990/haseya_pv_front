@@ -30,6 +30,7 @@ import { DownProductComponent } from './pages/products/down-product/down-product
 import { DownProductsComponent } from './pages/products/down-products/down-products.component';
 import { AbonosComponent } from './pages/tickets/abonos/abonos.component';
 import { StoresComponent } from './pages/stores/stores.component';
+import { StoreComponent } from './pages/stores/store/store.component';
 
 export const routes: Routes = [
     {
@@ -118,6 +119,9 @@ export const routes: Routes = [
             },
             {
                 path: 'tiendas', component: StoresComponent
+            },
+            {
+                path: 'tienda/:id', component: StoreComponent
             }
         ]
     },

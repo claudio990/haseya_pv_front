@@ -22,7 +22,8 @@ import { CommonModule } from '@angular/common';
     MatSortModule, 
     MatPaginatorModule, 
     MatButtonModule, 
-    RouterModule],
+    RouterModule
+  ],
   templateUrl: './stores.component.html',
   styleUrl: './stores.component.scss'
 })

@@ -22,6 +22,10 @@ export class TicketService {
   {
     return this.httpService.ejectQuery('getTickets', query);
   }
+  getAllTickets()
+  {
+    return this.httpService.ejectQuery('getAllTickets');
+  }
 
   getTicket(query:any)
   {

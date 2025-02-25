@@ -11,11 +11,11 @@
                 <div class="table_main">
                     <mat-form-field>
                     <mat-label>Filter</mat-label>
-                    <input matInput (keyup)="applyFilter($event)" placeholder="Ex. Mia" #input>
+                    <input matInput (keyup)="applyFilterTickets($event)" placeholder="Ex. Mia" #input>
                     </mat-form-field>
                     
                     <div class="mat-elevation-z8">
-                    <table mat-table [dataSource]="dataSource" matSort>
+                    <table mat-table [dataSource]="dataSourceTickets" matSort>
                     
                         <!-- ID Column -->
                         <!-- <ng-container matColumnDef="id">
@@ -41,8 +41,8 @@
                             </td>
                             </ng-container>
                     
-                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                        <tr mat-header-row *matHeaderRowDef="displayedColumnsTickets"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumnsTickets;"></tr>
                     
                         <!-- Row shown when there is no matching data. -->
                         <tr class="mat-row" *matNoDataRow>
@@ -50,7 +50,7 @@
                         </tr>
                     </table>
                     
-                    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
+                    <mat-paginator #ticketsPaginator="matPaginator" [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
                     </div>
               
                 </div>
@@ -58,13 +58,70 @@
                   
               </div> 
         </mat-tab>
-        <mat-tab label="Inventario">
-             Inventario 
+        <mat-tab label="Productos">
+
+            
+            <div class="main">
+
+                <div class="head_main">
+                    <h3>PRODUCTOS</h3>
+                    <button (click)="addProduct()">Agregar Producto</button>
+                </div>
+              
+                <div class="table_main">
+                    <mat-form-field>
+                    <mat-label>Filter</mat-label>
+                    <input matInput (keyup)="applyFilterProducts($event)" placeholder="Ex. Mia" #input>
+                    </mat-form-field>
+                    
+                    <div class="mat-elevation-z8">
+                    <table mat-table [dataSource]="dataSourceProducts" matSort>
+                    
+                        <!-- ID Column -->
+                        <!-- <ng-container matColumnDef="id">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+                        <td mat-cell *matCellDef="let row"> {{row.id}} </td>
+                        </ng-container> -->
+                    
+                    
+                        <!-- Name Column -->
+                        <ng-container matColumnDef="name">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Categoría </th>
+                        <td mat-cell *matCellDef="let row"> {{row.name}} </td>
+                        </ng-container>
+                    
+                     
+              
+                         <!-- Fruit Column -->
+                         <ng-container matColumnDef="options">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header> Opciones </th>
+                            <td mat-cell *matCellDef="let row"> 
+                              <a mat-raised-button   [routerLink]="['../tienda', row.id]"><i class="bi bi-eye"></i> Ver tienda</a>
+                               
+                            </td>
+                            </ng-container>
+                    
+                        <tr mat-header-row *matHeaderRowDef="displayedColumnsProducts"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumnsProducts;"></tr>
+                    
+                        <!-- Row shown when there is no matching data. -->
+                        <tr class="mat-row" *matNoDataRow>
+                        <td class="mat-cell" colspan="4">No data matching the filter "{{input.value}}"</td>
+                        </tr>
+                    </table>
+                    
+                    <mat-paginator #productsPaginator="matPaginator" [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
+                    </div>
+              
+                </div>
+                
+                  
+              </div> 
         </mat-tab>
-        <mat-tab label="Empleados">
+        <mat-tab label="Inventarios">
              Empleados 
         </mat-tab>
-        <mat-tab label="Productos">
+        <mat-tab label="Empleados">
              Productos
         </mat-tab>
       </mat-tab-group>

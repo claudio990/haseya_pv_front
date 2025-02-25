@@ -8,7 +8,6 @@ export const authLoginGuard: CanActivateFn = (route, state) => {
 
   if(!authService.noAuth())
   {
-      console.log('hello');
       
   }
   return authService.noAuth()

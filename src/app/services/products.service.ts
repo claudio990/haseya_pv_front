@@ -27,9 +27,9 @@ export class ProductsService {
   {
     return this.httpService.ejectQuery('products');
   }
-  getProductStore()
+  getProductStore(query: any)
   {
-    return this.httpService.ejectQuery('getProductStore');
+    return this.httpService.ejectQuery('getProductStore', query);
   }
 
   addProduct(query:any)

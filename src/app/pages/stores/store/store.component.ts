@@ -12,6 +12,7 @@ import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 import { TicketService } from '../../../services/ticket.service';
 import { ProductsService } from '../../../services/products.service';
+import { CategoriesService } from '../../../services/categories.service';
 
 @Component({
   selector: 'app-store',
@@ -36,7 +37,7 @@ export class StoreComponent implements OnInit{
 
   store: any = {};
   stores: any = [];
-
+  categories: any = [];
   tickets: any = [];
   products: any = [];
   formData = new FormData();
@@ -57,7 +58,8 @@ export class StoreComponent implements OnInit{
     private storeService: StoreServiceService,
     private route: ActivatedRoute,
     private ticketService: TicketService,
-    private productService: ProductsService
+    private productService: ProductsService,
+    private categoryService: CategoriesService
   ){}
 
   ngOnInit(): void {
@@ -70,6 +72,11 @@ export class StoreComponent implements OnInit{
 
     this.getSells();
     this.getProducts();
+
+    this.categoryService.getCategories()
+    .subscribe((res: any) => {
+      this.categories = res;
+    })
 
   
   }
@@ -89,10 +96,10 @@ export class StoreComponent implements OnInit{
 
   getProducts()
   {
-    this.productService.getProductStore()
+    this.productService.getProductStore({id_store: this.id_store})
     .subscribe((res:any) => {
       this.products = res;
-
+      
       this.dataSourceProducts = new MatTableDataSource(this.products);
       this.dataSourceProducts.paginator = this.productsPaginator;
       this.dataSourceProducts.sort = this.sort;
@@ -140,21 +147,28 @@ export class StoreComponent implements OnInit{
     
 
     addProduct() {
-      // Reiniciamos formData cada vez que abrimos el modal
       this.formData = new FormData();
+    
+      // Generar las opciones del select a partir de las categorías
+      const categoryOptions = this.categories
+        .map((category:any) => `<option value="${category.id}">${category.name}</option>`)
+        .join('');
     
       Swal.fire({
         title: "Sube el Producto",
         html: `
-          <label for="code">Código</label>
-          <input id="code" class="swal2-input" placeholder="Código del Producto">
-
           <label for="name">Nombre</label>
           <input id="name" class="swal2-input" placeholder="Nombre del Producto">
           
           <label for="cost">Costo</label>
           <input id="cost" type="number" class="swal2-input" placeholder="Ingresa el costo">
-          
+    
+          <label for="category">Categoría</label>
+          <select id="category" class="swal2-select">
+            <option value="" disabled selected>Selecciona una categoría</option>
+            ${categoryOptions}
+          </select>
+    
           <label for="file">Sube la imagen</label>
           <input id="file" type="file" class="swal2-file">
         `,
@@ -166,26 +180,28 @@ export class StoreComponent implements OnInit{
           const codeInput = document.getElementById('code') as HTMLInputElement;
           const nameInput = document.getElementById('name') as HTMLInputElement;
           const costInput = document.getElementById('cost') as HTMLInputElement;
+          const categorySelect = document.getElementById('category') as HTMLSelectElement;
           const fileInput = document.getElementById('file') as HTMLInputElement;
     
           const code = codeInput?.value.trim();
           const name = nameInput?.value.trim();
           const cost = costInput?.value.trim();
+          const category = categorySelect?.value;
           const file = fileInput?.files?.[0];
     
-          if (!name || !cost || !file) {
+          if (!code || !name || !cost || !category || !file) {
             Swal.showValidationMessage('Por favor llena todos los campos.');
             return false;
           }
     
           // Añadimos los valores a formData
-          this.formData.append('code', code);
           this.formData.append('name', name);
           this.formData.append('cost', cost);
+          this.formData.append('id_category', category);
           this.formData.append('file', file);
           this.formData.append('id_store', this.id_store);
     
-          return { name, cost, file };
+          return { code, name, cost, category, file };
         },
         allowOutsideClick: () => !Swal.isLoading()
       }).then((result) => {

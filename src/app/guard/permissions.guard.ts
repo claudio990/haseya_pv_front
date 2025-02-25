@@ -9,7 +9,6 @@ export const permissionsGuard: CanActivateFn = (route, state) => {
 
   if(!authService.isAuth())
   {
-      console.log('hello');
       
   }
   

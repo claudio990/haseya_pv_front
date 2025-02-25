@@ -39,7 +39,8 @@ export class StoreComponent implements OnInit{
 
   tickets: any = [];
   products: any = [];
-
+  formData = new FormData();
+  files: any; 
   displayedColumnsTickets: string[] = ['name', 'options'];
   dataSourceTickets: MatTableDataSource<any>;
   @ViewChild('ticketsPaginator') ticketsPaginator: MatPaginator;
@@ -138,73 +139,70 @@ export class StoreComponent implements OnInit{
     }  
     
 
-    addProduct()
-    {
+    addProduct() {
+      // Reiniciamos formData cada vez que abrimos el modal
+      this.formData = new FormData();
+    
       Swal.fire({
-        title: "Submit your information",
+        title: "Sube el Producto",
         html: `
-          <label for="github-username">Github username</label>
-          <input id="github-username" class="swal2-input" placeholder="Enter Github username">
+          <label for="code">Código</label>
+          <input id="code" class="swal2-input" placeholder="Código del Producto">
+
+          <label for="name">Nombre</label>
+          <input id="name" class="swal2-input" placeholder="Nombre del Producto">
           
-          <label for="email">Email</label>
-          <input id="email" type="email" class="swal2-input" placeholder="Enter your email">
+          <label for="cost">Costo</label>
+          <input id="cost" type="number" class="swal2-input" placeholder="Ingresa el costo">
           
-          <label for="file">Upload file</label>
+          <label for="file">Sube la imagen</label>
           <input id="file" type="file" class="swal2-file">
         `,
         focusConfirm: false,
         showCancelButton: true,
-        confirmButtonText: "Look up",
+        confirmButtonText: "Enviar",
         showLoaderOnConfirm: true,
-        preConfirm: async () => {
-          const usernameInput = document.getElementById('github-username') as HTMLInputElement;
-          const emailInput = document.getElementById('email') as HTMLInputElement;
+        preConfirm: () => {
+          const codeInput = document.getElementById('code') as HTMLInputElement;
+          const nameInput = document.getElementById('name') as HTMLInputElement;
+          const costInput = document.getElementById('cost') as HTMLInputElement;
           const fileInput = document.getElementById('file') as HTMLInputElement;
-      
-          const username = usernameInput?.value.trim();
-          const email = emailInput?.value.trim();
+    
+          const code = codeInput?.value.trim();
+          const name = nameInput?.value.trim();
+          const cost = costInput?.value.trim();
           const file = fileInput?.files?.[0];
-      
-          if (!username || !email || !file) {
-            Swal.showValidationMessage('Please fill in all fields');
+    
+          if (!name || !cost || !file) {
+            Swal.showValidationMessage('Por favor llena todos los campos.');
             return false;
           }
-      
-          try {
-            const githubUrl = `https://api.github.com/users/${username}`;
-            const response = await fetch(githubUrl);
-            if (!response.ok) {
-              return Swal.showValidationMessage(`
-                ${JSON.stringify(await response.json())}
-              `);
-            }
-            return { ...(await response.json()), email, file };
-          } catch (error) {
-            Swal.showValidationMessage(`Request failed: ${error}`);
-          }
+    
+          // Añadimos los valores a formData
+          this.formData.append('code', code);
+          this.formData.append('name', name);
+          this.formData.append('cost', cost);
+          this.formData.append('file', file);
+          this.formData.append('id_store', this.id_store);
+    
+          return { name, cost, file };
         },
         allowOutsideClick: () => !Swal.isLoading()
       }).then((result) => {
-        if (result.isConfirmed) {
-          Swal.fire({
-            title: `${result.value.login}'s avatar`,
-            text: `Email: ${result.value.email}`,
-            imageUrl: result.value.avatar_url
-          });
+        if (result.isConfirmed && result.value) {
+          this.productService.addProduct(this.formData)
+            .subscribe(
+              (res: any) => {
+                Swal.fire('¡Producto añadido!', 'El producto se ha subido exitosamente.', 'success');
+              },
+              (err: any) => {
+                Swal.fire('Error', 'Hubo un problema al subir el producto.', 'error');
+              }
+            );
         }
       });
-      
-      
     }
-
-
-
-
-
-
-
-
-
+    
 
 
 

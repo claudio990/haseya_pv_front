@@ -47,7 +47,46 @@ export class ProductsService {
     return this.httpService.ejectPost('deleteProduct', query);
   }
 
+  // Ingredients
+  getIngredient(query:any)
+  {
+    return this.httpService.ejectQuery('getIngredient', query);
+  }
+  getIngredients(query: any)
+  {
+    return this.httpService.ejectQuery('getIngredients', query);
+  }
+  addIngredient(query:any)
+  {
+    return this.http.post(this.url + 'addIngredient', query, this.options);
+  }
 
+  editIngredient(query:any)
+  {
+    return this.http.post(this.url + 'editIngredient', query, this.options);
+  }
+
+  deleteIngredient(query:any)
+  {
+    return this.httpService.ejectPost('deleteIngredient', query);
+  }
+
+  //Ingredients Products
+
+  getIngredientsProduct(query:any)
+  {
+    return this.httpService.ejectQuery('getProductIngredients', query);
+  }
+
+  addIngredientsProduct(query:any)
+  {
+    return this.http.post(this.url + 'addProductIngredient', query, this.options);
+  }
+
+  deleteIngredientProd(query:any)
+  {
+    return this.http.post(this.url + 'deleteProductIngredient', query, this.options);
+  }
 
   //Types pay 
 

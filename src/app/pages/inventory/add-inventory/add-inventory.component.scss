@@ -1,5 +1,5 @@
-$main-one: #F6B5B1;
-$main-two: #252525;
+$main-one: #a1a1a1;
+$main-two: #2d2d2d;
 
 
 .main
@@ -39,7 +39,7 @@ $main-two: #252525;
     {
         font-size: 40px;
         font-weight: bold;
-        color: pink;
+        color: $main-one;
         margin: auto;
     }
     .text_number

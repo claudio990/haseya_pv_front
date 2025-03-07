@@ -32,4 +32,9 @@ export class UserService {
     return this.httpService.ejectPost('register', query);
   }
 
+  getEmployeeStore(query:any)
+  {
+    return this.httpService.ejectQuery('getEmployeesStore', query);
+  }
+
 }

@@ -13,9 +13,9 @@ export class InventoryService {
     return this.httpService.ejectQuery('getInventory', query);
   }
 
-  getInventories()
+  getInventories(query:any)
   {
-    return this.httpService.ejectQuery('getInventories');
+    return this.httpService.ejectQuery('getInventories', query);
   }
 
   addInventory(query:any)

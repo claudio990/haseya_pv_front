@@ -41,7 +41,7 @@ export class InventoryComponent implements OnInit{
     
   }
   ngOnInit() {
-    this.service.getInventories().subscribe((res:any) => {
+    this.service.getInventories({id_store: 1}).subscribe((res:any) => {
       this.inventories = res;
       this.dataSource = new MatTableDataSource(this.inventories);
       this.dataSource.paginator = this.paginator;

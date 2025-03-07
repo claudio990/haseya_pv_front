@@ -13,6 +13,10 @@ import Swal from 'sweetalert2';
 import { TicketService } from '../../../services/ticket.service';
 import { ProductsService } from '../../../services/products.service';
 import { CategoriesService } from '../../../services/categories.service';
+import { UserService } from '../../../services/user.service';
+import { InventoryService } from '../../../services/inventory.service';
+import { AddInventoryComponent } from '../../inventory/add-inventory/add-inventory.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-store',
@@ -42,15 +46,36 @@ export class StoreComponent implements OnInit{
   products: any = [];
   formData = new FormData();
   files: any; 
-  displayedColumnsTickets: string[] = ['name', 'options'];
+  ingredients:any =[];
+  ingredientsProduct:any =[];
+  employees:any = [];
+  inventories: any = [];
+
+
+  //table for tickets
+  displayedColumnsTickets: string[] = ['employee', 'total','method','options'];
   dataSourceTickets: MatTableDataSource<any>;
   @ViewChild('ticketsPaginator') ticketsPaginator: MatPaginator;
 
-
-  displayedColumnsProducts: string[] = ['name', 'options'];
+  //table for Products
+  displayedColumnsProducts: string[] = ['name', 'cost', 'category', 'options'];
   dataSourceProducts: MatTableDataSource<any>;
   @ViewChild('productsPaginator') productsPaginator: MatPaginator;
 
+  //table for Ingredients
+  displayedColumnsIngredient: string[] = ['name', 'quantity', 'options'];
+  dataSourceIngredient: MatTableDataSource<any>;
+  @ViewChild('ingredientPaginator') IngredientPaginator: MatPaginator;
+
+  //table for Employees
+  displayedColumnsEmployees: string[] = ['name', 'email', 'type', 'options'];
+  dataSourceEmployees: MatTableDataSource<any>;
+  @ViewChild('employeesPaginator') EmployeesPaginator: MatPaginator;
+
+  //table for Inventories
+  displayedColumnsInventories: string[] = ['id', 'name', 'finished' ,'date','options'];
+  dataSourceInventories: MatTableDataSource<any>;
+  @ViewChild('InventoriesPaginator') InventoriesPaginator: MatPaginator;
 
   @ViewChild(MatSort) sort: MatSort;
 
@@ -59,7 +84,10 @@ export class StoreComponent implements OnInit{
     private route: ActivatedRoute,
     private ticketService: TicketService,
     private productService: ProductsService,
-    private categoryService: CategoriesService
+    private inventoryService: InventoryService,
+    private categoryService: CategoriesService,
+     public dialog: MatDialog,
+    private userService: UserService
   ){}
 
   ngOnInit(): void {
@@ -72,10 +100,14 @@ export class StoreComponent implements OnInit{
 
     this.getSells();
     this.getProducts();
+    this.getEmployees();
+    this.getIngredients();
+    this.getInventories();
 
     this.categoryService.getCategories()
     .subscribe((res: any) => {
       this.categories = res;
+      
     })
 
   
@@ -83,11 +115,9 @@ export class StoreComponent implements OnInit{
 
   getSells()
   {
-    this.ticketService.getAllTickets().
+    this.ticketService.getAllTickets({id_store: this.id_store}).
     subscribe((res:any) => {
       this.tickets = res;
-
-
       this.dataSourceTickets = new MatTableDataSource(this.tickets);
       this.dataSourceTickets.paginator = this.ticketsPaginator;
       this.dataSourceTickets.sort = this.sort;
@@ -106,27 +136,45 @@ export class StoreComponent implements OnInit{
     })
   }
 
-  
-  addStore() {
-  
-    Swal.fire({
-      title: 'Añadir Tienda',
-      input: 'text',
-      inputPlaceholder: 'Ingrese el nombre de la tienda',
-      showCancelButton: true,
-      confirmButtonText: 'Agregar',
-      cancelButtonText: 'Cancelar',
-    }).then((result) => {
-      if (result.isConfirmed && result.value) {
-        this.storeService.addStore({ name: result.value })
-        .subscribe((res:any) => {
-          
-        })
-        Swal.fire('Éxito', 'Tienda añadida correctamente', 'success');
-      }
-    });
+  getIngredients()
+  {
+    this.productService.getIngredients({id_store: this.id_store})
+    .subscribe((res:any) => {
+      
+      this.ingredients = res;
+      
+      this.dataSourceIngredient = new MatTableDataSource(this.ingredients);
+      this.dataSourceIngredient.paginator = this.IngredientPaginator;
+      this.dataSourceIngredient.sort = this.sort;
+    })
   }
-  
+
+
+  getEmployees()
+  {
+    this.userService.getEmployeeStore({id_store: this.id_store})
+    .subscribe((res:any) => {
+      this.employees = res;
+      
+      this.dataSourceEmployees = new MatTableDataSource(this.employees);
+      this.dataSourceEmployees.paginator = this.EmployeesPaginator;
+      this.dataSourceEmployees.sort = this.sort;
+    })
+  }
+
+  getInventories()
+  {
+    this.inventoryService.getInventories({id_store: this.id_store})
+    .subscribe((res:any) => {
+      
+      this.inventories = res;
+      
+      this.dataSourceInventories = new MatTableDataSource(this.inventories);
+      this.dataSourceInventories.paginator = this.InventoriesPaginator;
+      this.dataSourceInventories.sort = this.sort;
+    })
+  }
+
     applyFilterTickets(event: Event) {
         const filterValue = (event.target as HTMLInputElement).value;
         this.dataSourceTickets.filter = filterValue.trim().toLowerCase();
@@ -142,6 +190,33 @@ export class StoreComponent implements OnInit{
   
       if (this.dataSourceProducts.paginator) {
         this.dataSourceProducts.paginator.firstPage();
+      }
+    }  
+
+    applyFilterIngredient(event: Event) {
+      const filterValue = (event.target as HTMLInputElement).value;
+      this.dataSourceIngredient.filter = filterValue.trim().toLowerCase();
+  
+      if (this.dataSourceIngredient.paginator) {
+        this.dataSourceIngredient.paginator.firstPage();
+      }
+    }  
+
+    applyFilterEmployees(event: Event) {
+      const filterValue = (event.target as HTMLInputElement).value;
+      this.dataSourceEmployees.filter = filterValue.trim().toLowerCase();
+  
+      if (this.dataSourceEmployees.paginator) {
+        this.dataSourceEmployees.paginator.firstPage();
+      }
+    }  
+
+    applyFilterInventories(event: Event) {
+      const filterValue = (event.target as HTMLInputElement).value;
+      this.dataSourceInventories.filter = filterValue.trim().toLowerCase();
+  
+      if (this.dataSourceInventories.paginator) {
+        this.dataSourceInventories.paginator.firstPage();
       }
     }  
     
@@ -189,7 +264,7 @@ export class StoreComponent implements OnInit{
           const category = categorySelect?.value;
           const file = fileInput?.files?.[0];
     
-          if (!code || !name || !cost || !category || !file) {
+          if ( !name || !cost || !category || !file) {
             Swal.showValidationMessage('Por favor llena todos los campos.');
             return false;
           }
@@ -210,6 +285,7 @@ export class StoreComponent implements OnInit{
             .subscribe(
               (res: any) => {
                 Swal.fire('¡Producto añadido!', 'El producto se ha subido exitosamente.', 'success');
+                this.getProducts();
               },
               (err: any) => {
                 Swal.fire('Error', 'Hubo un problema al subir el producto.', 'error');
@@ -218,28 +294,342 @@ export class StoreComponent implements OnInit{
         }
       });
     }
+
+  addIngredient()
+  {
+  this.formData = new FormData();
     
-
-
-
-
-      delete(id:any)
-      {
+      Swal.fire({
+        title: "Sube el Producto",
+        html: `
+          <label for="name">Nombre</label>
+          <input id="name" class="swal2-input" placeholder="Nombre del Ingrediente">
+          
+          <label for="quantity">Cantidad</label>
+          <input id="quantity" type="number" class="swal2-input" placeholder="Ingresa la cantidad">
     
-        Swal.fire({
-          title: "Estas Seguro de eliminar la tienda?",
-          text: "No podrás revertir la acción!",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#3085d6",
-          cancelButtonColor: "#d33",
-          confirmButtonText: "Si, Eliminar!"
-        }).then((result) => {
-          if (result.isConfirmed) {
-           
-            
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: "Enviar",
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+          const quantityIn = document.getElementById('quantity') as HTMLInputElement;
+          const nameInput = document.getElementById('name') as HTMLInputElement;
+    
+          const quantity = quantityIn?.value.trim();
+          const name = nameInput?.value.trim();
+    
+          if ( !name || !quantity) {
+            Swal.showValidationMessage('Por favor llena todos los campos.');
+            return false;
           }
-        });
+    
+          // Añadimos los valores a formData
+          this.formData.append('name', name);
+          this.formData.append('quantity', quantity);
+          this.formData.append('id_store', this.id_store);
+    
+          return { quantity, name };
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+      }).then((result) => {
+        if (result.isConfirmed && result.value) {
+          this.productService.addIngredient(this.formData)
+            .subscribe(
+              (res: any) => {
+                Swal.fire('Ingrediente añadido!', 'El Ingrediente se ha subido exitosamente.', 'success');
+                this.getIngredients();
+              },
+              (err: any) => {
+                Swal.fire('Error', 'Hubo un problema al subir el producto.', 'error');
+              }
+            );
+        }
+      });
+  }
+
+
+  addEmployee()
+  {
+    this.formData = new FormData();
+
+    const employeeTypes = [
+      { id: 'waiter', name: 'Mesero' },
+      { id: 'manager', name: 'Gerente' }
+    ];
+
+    const employeeOptions = employeeTypes
+      .map(type => `<option value="${type.id}">${type.name}</option>`)
+      .join('');
+
+    Swal.fire({
+      title: "Añadir Empleado",
+      html: `
+        <label for="firstName">Nombre</label>
+        <input id="firstName" class="swal2-input" placeholder="Nombre del empleado">
+
+        <label for="lastName">Apellido</label>
+        <input id="lastName" class="swal2-input" placeholder="Apellido del empleado">
+
+        <label for="email">Correo</label>
+        <input id="email" type="email" class="swal2-input" placeholder="Correo electrónico">
+
+
+        <label for="email">Contraseña</label>
+        <input id="password" type="email" class="swal2-input" placeholder="Contraseña">
+
+
+        <label for="employeeType">Tipo de Empleado</label>
+        <select id="employeeType" class="swal2-select">
+          <option value="" disabled selected>Selecciona el tipo</option>
+          ${employeeOptions}
+        </select>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: "Añadir",
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        const firstName = (document.getElementById('firstName') as HTMLInputElement).value.trim();
+        const lastName = (document.getElementById('lastName') as HTMLInputElement).value.trim();
+        const email = (document.getElementById('email') as HTMLInputElement).value.trim();
+        const password = (document.getElementById('password') as HTMLInputElement).value.trim();
+        const employeeType = (document.getElementById('employeeType') as HTMLSelectElement).value;
+        
+        
+        if (!firstName || !lastName || !email || !password || !employeeType) {
+          Swal.showValidationMessage('Por favor, llena todos los campos.');
+          return false;
+        }
+
+        const data = 
+        {
+          firstname: firstName,
+          lastname: lastName,
+          email: email,
+          password: password,
+          type: employeeType,
+          store: this.id_store
+        }
+        this.userService.registerEmployee(data)
+          .subscribe(
+            (res: any) => {
+              Swal.fire('¡Empleado añadido!', 'El empleado ha sido registrado exitosamente.', 'success');
+              this.getEmployees();
+            },
+            (err: any) => {
+              Swal.fire('Error', 'Hubo un problema al añadir el empleado.', 'error');
+            }
+          );
+
+        return { data };
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        
+        
       }
+    });
+
+  }
+
+  startInventory()
+  {
+     const dialog = this.dialog.open(AddInventoryComponent, {
+          data: { id: 2},
+        });
+        dialog.afterClosed().subscribe(() => {
+          
+          
+        });
+  }
+
+  openIngredientsModal(id: any, name: any) {
+
+
+    this.productService.getIngredientsProduct({ id_product: id }).subscribe((res: any) => {
+      this.ingredientsProduct = res;
+  
+      let html = `
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;">Nombre</th>
+              <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;">Cantidad</th>
+              <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;">Eliminar</th>
+            </tr>
+          </thead>
+          <tbody id="ingredientsTable">
+            ${this.ingredientsProduct.map((ing: any) =>
+              `<tr>
+                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${ing.name}</td>
+                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${ing.quantity}</td>
+                <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">
+                  <button type="button" class="delete-btn" data-id="${ing.id}" style="padding: 4px 8px; background-color: #ff4d4d; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                    ❌
+                  </button>
+                </td>
+              </tr>`
+            ).join('')}
+          </tbody>
+        </table>
+        <br>
+        <label for="ingredient">Ingrediente:</label>
+        <select id="ingredient" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+          ${this.ingredients.map((ing: any) => `<option value="${ing.id}">${ing.name}</option>`).join('')}
+        </select>
+        <label for="quantity">Cantidad:</label>
+        <input id="quantity" type="number" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+      `;
+  
+      Swal.fire({
+        title: 'Añadir Ingrediente para: ' + name,
+        html: html,
+        showCancelButton: true,
+        confirmButtonText: 'Añadir',
+        didOpen: () => {
+          document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', () => {
+              const ingId = button.getAttribute('data-id');
+              this.deleteIngProd(ingId, id, name); // Pasar también el ID del producto para recargar
+            });
+          });
+        },
+        preConfirm: () => {
+          const ingredient = (document.getElementById('ingredient') as HTMLSelectElement).value;
+          const quantity = (document.getElementById('quantity') as HTMLInputElement).value;
+  
+          if (!ingredient || !quantity || parseFloat(quantity) <= 0) {
+            Swal.showValidationMessage('Por favor, selecciona un ingrediente y una cantidad válida');
+            return false;
+          }
+  
+          const data = {
+            id_ingredient: ingredient,
+            quantity: quantity,
+            id_product: id
+          };
+  
+          this.productService.addIngredientsProduct(data).subscribe(() => {
+            this.openIngredientsModal(id, name); // Recargar la lista actualizada
+          });
+  
+          return true;
+        }
+      });
+    });
+  }
+  
+  deleteIngProd(ingId: any, productId: any, name:any) {
+    this.productService.deleteIngredientProd({ id: ingId }).subscribe((res:any) => {
+      
+      this.openIngredientsModal(productId, name); // Volver a abrir el modal actualizado
+    });
+  }
+  
+  delete(id:any)
+  {
+
+    Swal.fire({
+      title: "Estas Seguro de eliminar la tienda?",
+      text: "No podrás revertir la acción!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Si, Eliminar!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        
+        
+      }
+    });
+  }
+
+  upIngredient(id:any, ingredient: any)
+  {
+    Swal.fire({
+      title: "Ingrese la Cantidad de alta para: " + ingredient,
+      html: `
+        <label for="quantity">Cantidad</label>
+        <input id="quantity" type="number" class="swal2-input" placeholder="Cantidad" min="1">
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: "Añadir",
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        const quantity = (document.getElementById('quantity') as HTMLInputElement).value.trim();
+    
+        if (!quantity || parseFloat(quantity) <= 0) {
+          Swal.showValidationMessage('Por favor, ingresa una cantidad válida.');
+          return false;
+        }
+
+        const data = 
+        {
+          id : id,
+          quantity: quantity
+        }
+        this.productService.upProduct(data)
+        .subscribe(() => {
+          this.getIngredients();
+        })
+    
+        return { quantity };
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        console.log('Cantidad ingresada:', result.value.quantity);
+        Swal.fire('¡Cantidad añadida!', `Has añadido: ${result.value.quantity}`, 'success');
+      }
+    });
+     
+  }
+
+  downIngredient(id:any, ingredient: any)
+  {
+    Swal.fire({
+      title: "Ingrese la Cantidad de baja para: " + ingredient,
+      html: `
+        <label for="quantity">Cantidad</label>
+        <input id="quantity" type="number" class="swal2-input" placeholder="Cantidad" min="1">
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: "Añadir",
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        const quantity = (document.getElementById('quantity') as HTMLInputElement).value.trim();
+    
+        if (!quantity || parseFloat(quantity) <= 0) {
+          Swal.showValidationMessage('Por favor, ingresa una cantidad válida.');
+          return false;
+        }
+
+        const data = 
+        {
+          id : id,
+          quantity: quantity
+        }
+        this.productService.downProduct(data)
+        .subscribe(() => {
+          this.getIngredients();
+        })
+    
+        return { quantity };
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        console.log('Cantidad ingresada:', result.value.quantity);
+        Swal.fire('¡Cantidad añadida!', `Has añadido: ${result.value.quantity}`, 'success');
+      }
+    });
+    
+  }
 
 }

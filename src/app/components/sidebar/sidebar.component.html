@@ -3,7 +3,7 @@
         <img src="../../../assets/img/alasflautas.png" alt="">
     </div>
     <div class="pages">
-        <div class="page">
+        <div class="page" *ngIf="bandAdmin">
             <a href="" class="" [routerLink]="['dashboard']">
                 <i class="bi bi-cash-coin"></i>
                 <p *ngIf="storage.bandActive">Finanzas</p>
@@ -53,12 +53,7 @@
             </a>
         </div>
 
-        <div class="page" >
-            <a href="" class=""  [routerLink]="['pv']">
-                <i class="bi bi-shop"></i>
-                <p *ngIf="storage.bandActive">Punto de Venta</p>
-            </a>
-        </div>
+        
         <div class="page" *ngIf="bandAdmin">
             <a href="" class=""  [routerLink]="['sells']">
                 <i class="bi bi-bag"></i>
@@ -66,6 +61,12 @@
             </a>
         </div> -->
 
+        <div class="page" *ngIf="bandGerente || bandMesero">
+            <a href="" class=""  [routerLink]="['pv']">
+                <i class="bi bi-shop"></i>
+                <p *ngIf="storage.bandActive">Punto de Venta</p>
+            </a>
+        </div>
       
         <div class="page" >
             <button class="Btn" (click)="logOut()">

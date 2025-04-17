@@ -36,6 +36,10 @@ export class LoginComponent {
           
           this.storage.set('user', data.user.type);
           this.storage.set('id_user', data.user.id);
+          this.storage.set('id_store', data.store.id);
+          this.storage.set('store', data.store.name);
+          
+          console.log(data);
           Swal.fire({
             text : 'Ingreso Correctamente',
             confirmButtonColor: "#9f2220",

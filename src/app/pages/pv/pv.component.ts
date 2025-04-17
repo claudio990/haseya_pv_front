@@ -99,8 +99,13 @@ export class PvComponent {
   
   }
 
+  bandWaiter: boolean = false;
+
   ngOnInit() {
 
+    
+    const type = localStorage.getItem('user')
+    this.bandWaiter = type == 'waiter' ? true : false;
     this.today = new Date();
     const options = {
       year: 'numeric',
@@ -386,7 +391,8 @@ export class PvComponent {
 
   onSubmit()
   {
-    this.ticketService.addBox(this.formStartBox.value)
+    const data = {moneyStarted: this.formStartBox.value.moneyStarted, id_store: localStorage.getItem('id_store')}
+    this.ticketService.addBox(data)
     .subscribe((res:any) =>
     {
       if(res.status == 'success')

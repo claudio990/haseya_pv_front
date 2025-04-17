@@ -1,10 +1,15 @@
-<div class="start" *ngIf="!isOpenBox">
+<div class="start" *ngIf="!isOpenBox && !bandWaiter">
   <p class="text">Comenzar turno</p>
   <form class="form" action="" [formGroup]="formStartBox">
     <label for="">Ingresar monto en caja: </label>
     <input type="text" placeholder="Nombre" class="input_form"  formControlName="moneyStarted">
     <button class="btn" (click)="onSubmit()">Iniciar Turno</button>
   </form>
+</div>
+
+<div class="message-box" *ngIf="!isOpenBox && bandWaiter">
+  <h2>¡Upps, espera!</h2>
+  <p>No hay ninguna caja abierta.<br>Pídele al gerente que abra la caja.</p>
 </div>
 
 <div class="pv"  *ngIf="isOpenBox">
@@ -213,3 +218,4 @@
         </div>
       </div>
 </div>
+

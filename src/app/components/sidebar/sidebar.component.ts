@@ -18,11 +18,15 @@ export class SidebarComponent implements OnInit{
   }
 
   bandAdmin : boolean = false;
+  bandGerente : boolean = false;
+  bandMesero : boolean = false;
+
   ngOnInit() {
     const type = localStorage.getItem('user')
 
     this.bandAdmin = type == 'admin' ? true : false; 
-    
+    this.bandGerente = type == 'manager' ? true : false; 
+    this.bandMesero = type == 'waiter' ? true : false; 
     
   }
 

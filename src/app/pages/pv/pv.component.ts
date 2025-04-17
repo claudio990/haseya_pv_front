@@ -50,30 +50,47 @@ export class PvComponent {
   totalPagarAntesDescuento: number = 0;
   myControl = new FormControl('');
   options: any = [];
-  filteredOptions: any;
-  filteredClient: any;
   products: any = [];
-  total: any = 0;
   ELEMENT_DATA: any = [];
   formGroup: FormGroup;
   formClient: FormGroup;
   formStartBox: FormGroup;
   dataSource = new MatTableDataSource(this.ELEMENT_DATA);
   displayedColumns: string[] = ['producto', 'cantidad', 'precio', 'total','accion'];
-  clients: any = [];
-  discountNumber: any = 0;
-  types: any = [];
-  selectedClient: any;
   selectedProudct: any;
   abonoClient: any = '';
   idBox: any;
   isOpenBox: boolean = false;
   id_employee: any = 0;
   today: any; 
-  printTicket: boolean = false;
   id_ticket: any = 0;
+  ticketss : any = {};
+  tickets: any = [];
+  isOpenTicket : any = false;
   client: any = 'Venta General';
 
+
+  categories = [
+    {
+      name: 'Bebidas',
+      products: [
+        { name: 'Coca-Cola', price: 20, image: 'assets/coca.jpg' },
+        { name: 'Agua', price: 15, image: 'assets/agua.jpg' }
+      ]
+    },
+    {
+      name: 'Snacks',
+      products: [
+        { name: 'Papas', price: 25, image: 'assets/papas.jpg' },
+        { name: 'Chocolates', price: 30, image: 'assets/chocolate.jpg' }
+      ]
+    }
+  ];
+
+  selectedCategory = this.categories[0];
+  ticket: any[] = [];
+  ticketGrouped: any[] = [];
+  total: number = 0;
   constructor(private fb: FormBuilder, 
               private productService: ProductsService, 
               private clientService: GeneralService,
@@ -102,7 +119,7 @@ export class PvComponent {
   bandWaiter: boolean = false;
 
   ngOnInit() {
-
+    this.selectCategory(this.categories[0]);
     
     const type = localStorage.getItem('user')
     this.bandWaiter = type == 'waiter' ? true : false;
@@ -120,274 +137,20 @@ export class PvComponent {
     .subscribe((res:any) =>{
       this.isOpenBox = res.isOpen == 1 ? true : false;
       this.idBox = this.isOpenBox ? res.id_box : ''
-    })
-
-
-    this.formGroup.get('producto')?.valueChanges.subscribe(value => {
-      this.filteredOptions =  this._filter(value)
-    })
-
-    this.productService.getProducts({'id': 1})
-    .subscribe({
-      next: (data) => {
-        this.options = data;
-      }, 
-      error:(e) => {
-
-      }
-
-    })
-    this.formClient.get('client')?.valueChanges.subscribe(value => {
-      this.filteredClient =  this.filterClients(value)
-      
-    })
-
-    this.clientService.getClients()
-    .subscribe({
-      next: (data) =>{
-        this.clients = data;
-      },
-      error:(e) => {
-
-      }
-    })
-    
-
-    this.productService.getTypes()
-    .subscribe({
-      next: (data) => {
-        this.types = data;
-      }, 
-      error:(e) => {
-
-      }
-    })
-  }
-
-  private _filter(value: any): string[] {
-    const filterValue = typeof value === "string" ? value.toLowerCase() : value.name.toLowerCase();
-    return  this.options.filter((option:any) => option.name.toLowerCase().includes(filterValue));
-  }
-
-  private filterClients(value: any): string[] {
-    const filterValue = typeof value === "string" ? value.toLowerCase() : value.name.toLowerCase();
-      
-    return  this.clients.filter((option:any) => option.name.toLowerCase().includes(filterValue));
-  }
-
-  displayProducto(producto: any): string {
-    return producto.name;
-  }
-
-  displayClient(client: any): string {
-    
-    return client.name;
-  }
-
-  selected(event: any)
-  {
-    
-    this.selectedProudct = event.option.value;
-  }
-
-  selectClient(event: any)
-  {
-    this.selectedClient = event.option.value;
-    this.client = event.option.value.name;
-    
-    
-  }
-
-  discount(event: any)
-  {
-
-    this.discountNumber = event.target.value;
-    
-    this.totalPagar = this.totalPagarAntesDescuento - (this.totalPagarAntesDescuento * (this.discountNumber/100))
-  }
-
-  abono(event: any)
-  {
-    this.abonoClient = event.target.value;
-    if(this.abonoClient != 0)
-      {
-        this.deshabilitado = false;
-
-      }
-      else{
-        this.deshabilitado = true;
-      }
-  }
-
-
-
-  addProduct()
-  {
-    const _cantidad: number = this.formGroup.value.cantidad;
-    const _precio: number = parseFloat(this.selectedProudct.cost);
-    const _total: number = _cantidad * _precio;
-    this.totalPagarAntesDescuento = this.totalPagarAntesDescuento + _total;
-    this.totalPagar = this.totalPagarAntesDescuento - (this.totalPagarAntesDescuento * (this.discountNumber/100))
-
-   
-    
-    this.ELEMENT_DATA.push(
-      {
-        idProducto: this.selectedProudct.code,
-        descripcionProducto: this.selectedProudct.name,
-        cantidad: this.formGroup.value.cantidad,
-        precioTexto: String(_precio.toFixed(2)),
-        totalTexto: String(_total.toFixed(2))
-      })
-      this.dataSource = new MatTableDataSource(this.ELEMENT_DATA);
-
-      this.formGroup.patchValue({
-        producto: '',
-        cantidad: ''
-      })
-
-  }
-
-  eliminarProducto(item:any)
-  {
-    this.totalPagarAntesDescuento = this.totalPagarAntesDescuento - parseFloat(item.totalTexto);
-    this.totalPagar = this.totalPagarAntesDescuento - (this.totalPagarAntesDescuento * (this.discountNumber/100))
-    this.ELEMENT_DATA = this.ELEMENT_DATA.filter((p:any) => p.idProducto != item.idProducto)
-
-    this.dataSource = new MatTableDataSource(this.ELEMENT_DATA);
-  }
-  registrarVenta() 
-  {
-    const id_client = this.formClient.value.client != '' ? this.formClient.value.client.id : 0
-    this.client = this.formClient.value.client != '' ? this.formClient.value.client.name : 'Venta General'
-    const amount = this.abonoClient != '' ? this.abonoClient : this.totalPagar
-
-     
-      const data = {'id_user': this.id_employee, 
-                    'id_box': this.idBox, 
-                    'subtotal': this.totalPagarAntesDescuento,
-                    'discount': this.discountNumber,
-                    'total': this.totalPagar,
-                    'id_client' : id_client,
-                    'type_pay' : this.tipodePago,
-                    'amount_pay' : amount,
-                    'is_abono' : 0
-                   };
-  
-      this.ticketService.addTicket(data)
+      this.ticketService.getTicketsBox({id_box: this.idBox})
       .subscribe({
-        next:(data: any) =>{
-          if(data.status == 'success')
-          {
-            this.id_ticket = data.ticket_id;
-            this.pdf();
-            this.ELEMENT_DATA.map((key:any) => {
-              const dat = {
-                            'id_ticket': data.ticket_id,
-                            'id_product': key.idProducto,
-                            'simple_price': key.precioTexto,
-                            'quantity': key.cantidad,
-                            'total': key.totalTexto
-                          
-                          }
-              this.ticketService.addProductTicket(dat)
-              .subscribe((res:any)=>{})
-            })
-            setTimeout(() => {
-              this.ELEMENT_DATA =[];
-              this.dataSource = new MatTableDataSource(this.ELEMENT_DATA);
-              this.totalPagar = 0;
-              this.totalPagarAntesDescuento = 0;
-              this.formGroup.patchValue({
-                producto: '',
-                cantidad: '',
-                abono: '',
-                discount: ''
-              })
-              this.formClient.patchValue({
-                client: ''
-              })
-              this.discountNumber = 0;
-              this.abonoClient = '';
-              Swal.fire({
-                position: "top-end",
-                icon: "success",
-                title: "Ticket añadido correctamente",
-                showConfirmButton: false,
-                timer: 1500
-              });
-              }, 1500);
-            
-          }
+        next: (data) => {
+          this.tickets = data;
+          
+        }, 
+        error:(e) => {
+  
         }
       })
-    
-      
-      
-    
-    
+    })
 
+    
   }
-
-  abonar()
-  {
-    const id_client = this.formClient.value.client != '' ? this.formClient.value.client.id : 0
-    const data = {'id_user': this.id_employee, 
-                  'id_box': this.idBox, 
-                  'subtotal': this.abonoClient,
-                  'discount':0,
-                  'total': this.abonoClient,
-                  'id_client' : id_client,
-                  'type_pay' : this.tipodePago,
-                  'amount_pay' : this.abonoClient,
-                  'is_abono' : 1
-                  };
-
-
-                  this.ticketService.addTicket(data)
-                  .subscribe({
-                    next:(data: any) =>{
-                      if(data.status == 'success')
-                      {
-                        this.ELEMENT_DATA.map((key:any) => {
-                          const dat = {
-                                        'id_ticket': data.ticket_id,
-                                        'id_product': key.idProducto,
-                                        'simple_price': key.precioTexto,
-                                        'quantity': key.cantidad,
-                                        'total': key.totalTexto
-                                      
-                                      }
-                          this.ticketService.addProductTicket(dat)
-                          .subscribe((res:any)=>{})
-                        })
-                        this.ELEMENT_DATA =[];
-                        this.dataSource = new MatTableDataSource(this.ELEMENT_DATA);
-                        this.totalPagar = 0;
-                        this.totalPagarAntesDescuento = 0;
-                        this.formGroup.patchValue({
-                          producto: '',
-                          cantidad: '',
-                          abono: '',
-                          discount: ''
-                        })
-                        this.formClient.patchValue({
-                          client: ''
-                        })
-                        this.discountNumber = 0;
-                        this.abonoClient = '';
-                        Swal.fire({
-                          position: "top-end",
-                          icon: "success",
-                          title: "Abono añadido correctamente",
-                          showConfirmButton: false,
-                          timer: 1500
-                        });
-                      }
-                    }
-                  })
-  }
-
 
   onSubmit()
   {
@@ -410,27 +173,82 @@ export class PvComponent {
    
   }
 
-
-  pdf()
+  openTicket(id:any)
   {
-    this.printTicket = true;
-    setTimeout(() => {
-      let pdf = new jsPDF('p', 'pt', [612, 792]);
-    const data = document.getElementById('ticket') as HTMLElement;
-    pdf.html(data, {
-        callback: function () {
-          // pdf.save('test.pdf');
-          window.open(pdf.output('bloburl')); // to debug
-        },
-        // margin: [60, 60, 60, 60],
-        // x: 32,
-        // y: 32,
-      });
-    }, 1000);
+    this.ticketService.getTicket({id: id})
+    .subscribe({
+      next: (data) => {
+        // this.ticket = data;
+        this.isOpenTicket = true
+        
+      }, 
+      error:(e) => {
 
-    setTimeout(() => {
-      this.printTicket = false;
-    }, 1500);
-    
+      }
+    })
+
   }
+
+  
+  selectCategory(cat: any) {
+    this.selectedCategory = cat;
+  }
+
+  addToTicket(product: any) {
+    this.ticket.push(product);
+    this.groupTicket();
+  }
+
+  removeItem(item: any) {
+    const index = this.ticket.findIndex(p => p.name === item.name);
+    if (index > -1) {
+      this.ticket.splice(index, 1);
+      this.groupTicket();
+    }
+  }
+
+  clearTicket() {
+    this.ticket = [];
+    this.ticketGrouped = [];
+    this.total = 0;
+  }
+
+  groupTicket() {
+    const grouped = this.ticket.reduce((acc, product) => {
+      const found = acc.find((p:any) => p.name === product.name);
+      if (found) {
+        found.quantity++;
+      } else {
+        acc.push({ ...product, quantity: 1 });
+      }
+      return acc;
+    }, [] as any[]);
+
+    this.ticketGrouped = grouped;
+    this.total = this.ticket.reduce((sum, p) => sum + p.price, 0);
+  }
+
+
+  // pdf()
+  // {
+  //   this.printTicket = true;
+  //   setTimeout(() => {
+  //     let pdf = new jsPDF('p', 'pt', [612, 792]);
+  //   const data = document.getElementById('ticket') as HTMLElement;
+  //   pdf.html(data, {
+  //       callback: function () {
+  //         // pdf.save('test.pdf');
+  //         window.open(pdf.output('bloburl')); // to debug
+  //       },
+  //       // margin: [60, 60, 60, 60],
+  //       // x: 32,
+  //       // y: 32,
+  //     });
+  //   }, 1000);
+
+  //   setTimeout(() => {
+  //     this.printTicket = false;
+  //   }, 1500);
+    
+  // }
 }

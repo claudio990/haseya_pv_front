@@ -34,7 +34,7 @@
     </div>
   </div>
   <div class="head_main" *ngIf="isOpenTicket">
-    <h3>Mesa: </h3>
+    <h3>Mesa: {{ticketActual.name}}</h3>
     <button mat-raised-button (click)="openDialog()" *ngIf="!bandWaiter">Cerrar Caja</button>
   </div>
   <div class="ticket-container" *ngIf="isOpenTicket">
@@ -56,26 +56,38 @@
           class="product-card" 
           *ngFor="let product of selectedCategory?.products"
           (click)="addToTicket(product)">
-          <img [src]="product.image" alt="{{ product.name }}" />
+          <img src="http://localhost:8000/storage/products/{{product.image}}" alt="{{ product.name }}" />
           <div class="product-info">
             <h4>{{ product.name }}</h4>
-            <p>${{ product.price }}</p>
+            <p>${{ product.cost }}</p>
           </div>
         </div>
       </div>
   
-      <!-- Ticket -->
       <div class="ticket">
         <h3>Ticket</h3>
+      
+        <!-- Productos enviados -->
         <ul>
-          <li *ngFor="let item of ticketGrouped">
+          <li *ngFor="let item of productsTicket">
+            {{ item.name }} x{{ item.quantity }}
+            <span class="locked">✔️ enviado</span>
+          </li>
+      
+          <!-- Productos pendientes -->
+          <li *ngFor="let item of pendingItems">
             {{ item.name }} x{{ item.quantity }}
             <button (click)="removeItem(item)">❌</button>
           </li>
         </ul>
+      
         <p class="total">Total: ${{ total }}</p>
-        <button class="clear-btn" (click)="clearTicket()">Limpiar</button>
+      
+        <!-- Botones -->
+        <button class="send-btn" [disabled]="pendingItems.length === 0" (click)="sendOrder()">Enviar comanda</button>
+        <button class="clear-btn" [disabled]="pendingItems.length === 0" (click)="clearPending()">Limpiar no enviados</button>
       </div>
+      
     </div>
   </div>
   

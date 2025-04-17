@@ -31,7 +31,17 @@ export class ProductsService {
   {
     return this.httpService.ejectQuery('getProductStore', query);
   }
+  getProductsBox(query: any)
+  {
+    return this.httpService.ejectQuery('getProductsBox', query);
+  }
 
+  addProductsToTicket(products: any[], ticketId: any) {
+    return this.httpService.ejectPost('addProductsToTicket', {
+      id_ticket: ticketId,
+      products: products
+    });
+  }
   addProduct(query:any)
   {
     return this.http.post(this.url + 'addProduct', query, this.options);

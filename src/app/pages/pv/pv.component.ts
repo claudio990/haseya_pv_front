@@ -36,7 +36,6 @@ import { jsPDF } from "jspdf";
     MatTableModule, 
     MatButtonModule,
     MatGridListModule,
-    AsyncPipe,
     CommonModule,
     RouterModule
   ],
@@ -64,33 +63,22 @@ export class PvComponent {
   id_employee: any = 0;
   today: any; 
   id_ticket: any = 0;
-  ticketss : any = {};
+  ticketActual : any = {};
   tickets: any = [];
   isOpenTicket : any = false;
   client: any = 'Venta General';
 
 
-  categories = [
-    {
-      name: 'Bebidas',
-      products: [
-        { name: 'Coca-Cola', price: 20, image: 'assets/coca.jpg' },
-        { name: 'Agua', price: 15, image: 'assets/agua.jpg' }
-      ]
-    },
-    {
-      name: 'Snacks',
-      products: [
-        { name: 'Papas', price: 25, image: 'assets/papas.jpg' },
-        { name: 'Chocolates', price: 30, image: 'assets/chocolate.jpg' }
-      ]
-    }
+  categories: any = [
   ];
 
   selectedCategory = this.categories[0];
   ticket: any[] = [];
   ticketGrouped: any[] = [];
-  total: number = 0;
+
+  productsTicket: any[] = []; // Ya enviados (precargados desde backend)
+  pendingItems: any[] = [];
+  // total: number = 0;
   constructor(private fb: FormBuilder, 
               private productService: ProductsService, 
               private clientService: GeneralService,
@@ -119,7 +107,10 @@ export class PvComponent {
   bandWaiter: boolean = false;
 
   ngOnInit() {
-    this.selectCategory(this.categories[0]);
+    this.productsTicket = [
+      { name: 'Café', quantity: 2, price: 35 },
+      { name: 'Pan dulce', quantity: 1, price: 18 }
+    ];
     
     const type = localStorage.getItem('user')
     this.bandWaiter = type == 'waiter' ? true : false;
@@ -142,6 +133,18 @@ export class PvComponent {
         next: (data) => {
           this.tickets = data;
           
+        }, 
+        error:(e) => {
+  
+        }
+      })
+
+      this.productService.getProductsBox({id_store: localStorage.getItem('id_store')})
+      .subscribe({
+        next: (data) => {
+          this.categories = data;
+          console.log(data);
+          this.selectCategory(this.categories[0]);
         }, 
         error:(e) => {
   
@@ -178,7 +181,7 @@ export class PvComponent {
     this.ticketService.getTicket({id: id})
     .subscribe({
       next: (data) => {
-        // this.ticket = data;
+        this.ticketActual = data;
         this.isOpenTicket = true
         
       }, 
@@ -194,39 +197,71 @@ export class PvComponent {
     this.selectedCategory = cat;
   }
 
-  addToTicket(product: any) {
-    this.ticket.push(product);
-    this.groupTicket();
+  
+  get total() {
+    const totalSent = this.productsTicket.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const totalPending = this.pendingItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    return totalSent + totalPending;
   }
-
-  removeItem(item: any) {
-    const index = this.ticket.findIndex(p => p.name === item.name);
-    if (index > -1) {
-      this.ticket.splice(index, 1);
-      this.groupTicket();
+  
+  addToTicket(product: any) {
+    const found = this.pendingItems.find(p => p.name === product.name);
+    if (found) {
+      found.quantity++;
+    } else {
+      console.log(product);
+      
+      this.pendingItems.push({ ...product, quantity: 1 });
     }
   }
-
-  clearTicket() {
-    this.ticket = [];
-    this.ticketGrouped = [];
-    this.total = 0;
+  
+  removeItem(item: any) {
+    const index = this.pendingItems.findIndex(p => p.name === item.name);
+    if (index > -1) {
+      this.pendingItems.splice(index, 1);
+    }
   }
-
-  groupTicket() {
-    const grouped = this.ticket.reduce((acc, product) => {
-      const found = acc.find((p:any) => p.name === product.name);
-      if (found) {
-        found.quantity++;
-      } else {
-        acc.push({ ...product, quantity: 1 });
+  
+  clearPending() {
+    this.pendingItems = [];
+  }
+  
+  sendOrder() {
+    if (this.pendingItems.length === 0) {
+      alert('No hay productos nuevos para enviar');
+      return;
+    }
+  
+    // Preparamos los datos para enviar
+    const payload = this.pendingItems.map(item => ({
+      id_product: item.code, // Asegúrate que cada producto tenga 'id'
+      quantity: item.quantity,
+      simple_price: item.cost,
+      total: item.cost * item.quantity
+    }));
+    // Llamada al backend usando productService
+    this.productService.addProductsToTicket(payload, this.ticketActual.id).subscribe({
+      next: () => {
+        // Fusionar a los productos ya enviados
+        this.pendingItems.forEach(p => {
+          const found = this.productsTicket.find(x => x.id === p.id);
+          if (found) {
+            found.quantity += p.quantity;
+          } else {
+            this.productsTicket.push({ ...p });
+          }
+        });
+  
+        this.pendingItems = [];
+        alert('Comanda enviada con éxito');
+      },
+      error: () => {
+        alert('Hubo un error al enviar la comanda');
       }
-      return acc;
-    }, [] as any[]);
-
-    this.ticketGrouped = grouped;
-    this.total = this.ticket.reduce((sum, p) => sum + p.price, 0);
+    });
   }
+  
+  
 
 
   // pdf()

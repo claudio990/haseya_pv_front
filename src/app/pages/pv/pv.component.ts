@@ -68,6 +68,7 @@ export class PvComponent {
   isOpenTicket : any = false;
   client: any = 'Venta General';
 
+  paymentMethod: string = '';
 
   categories: any = [
   ];
@@ -107,10 +108,7 @@ export class PvComponent {
   bandWaiter: boolean = false;
 
   ngOnInit() {
-    this.productsTicket = [
-      { name: 'Café', quantity: 2, price: 35 },
-      { name: 'Pan dulce', quantity: 1, price: 18 }
-    ];
+    
     
     const type = localStorage.getItem('user')
     this.bandWaiter = type == 'waiter' ? true : false;
@@ -152,6 +150,7 @@ export class PvComponent {
       })
     })
 
+
     
   }
 
@@ -180,16 +179,23 @@ export class PvComponent {
   {
     this.ticketService.getTicket({id: id})
     .subscribe({
-      next: (data) => {
+      next: (data:any) => {
         this.ticketActual = data;
         this.isOpenTicket = true
-        
+        this.productsTicket = data.products
       }, 
       error:(e) => {
 
       }
     })
 
+  }
+
+  closeTicket()
+  {
+    this.ticketActual = {};
+    this.isOpenTicket = false;
+    this.pendingItems = [];
   }
 
   
@@ -209,7 +215,6 @@ export class PvComponent {
     if (found) {
       found.quantity++;
     } else {
-      console.log(product);
       
       this.pendingItems.push({ ...product, quantity: 1 });
     }
@@ -244,7 +249,7 @@ export class PvComponent {
       next: () => {
         // Fusionar a los productos ya enviados
         this.pendingItems.forEach(p => {
-          const found = this.productsTicket.find(x => x.id === p.id);
+          const found = this.productsTicket.find(x => x.code === p.code);
           if (found) {
             found.quantity += p.quantity;
           } else {
@@ -259,6 +264,34 @@ export class PvComponent {
         alert('Hubo un error al enviar la comanda');
       }
     });
+  }
+
+  getTotal(): number {
+    const sent = this.productsTicket.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    return sent;
+  }
+  
+  chargeTicket() {
+    if (!this.paymentMethod) {
+      alert('Selecciona un método de pago');
+      return;
+    }
+  
+    const payload = {
+      id_ticket: this.id_ticket,
+      method: this.paymentMethod,
+      total: this.getTotal()
+    };
+  
+    // this.productService.chargeTicket(payload).subscribe({
+    //   next: () => {
+    //     alert('Ticket cobrado correctamente');
+    //     // Aquí podrías redirigir, cerrar modal, etc.
+    //   },
+    //   error: () => {
+    //     alert('Error al cobrar el ticket');
+    //   }
+    // });
   }
   
   

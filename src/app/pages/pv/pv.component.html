@@ -35,8 +35,10 @@
   </div>
   <div class="head_main" *ngIf="isOpenTicket">
     <h3>Mesa: {{ticketActual.name}}</h3>
-    <button mat-raised-button (click)="openDialog()" *ngIf="!bandWaiter">Cerrar Caja</button>
+    <button mat-raised-button (click)="closeTicket()" *ngIf="!bandWaiter">Atrás</button>
   </div>
+
+  <!-- Tickets  -->
   <div class="ticket-container" *ngIf="isOpenTicket">
     <!-- Categorías -->
     <div class="category-bar">
@@ -90,6 +92,7 @@
       
     </div>
   </div>
+  
   
   
 

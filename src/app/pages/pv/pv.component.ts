@@ -67,12 +67,12 @@ export class PvComponent {
   tickets: any = [];
   isOpenTicket : any = false;
   client: any = 'Venta General';
-
+  peopleCount: number = 1;
   paymentMethod: string = '';
-
+  clientName: string = '';
   categories: any = [
   ];
-
+  isLoading: boolean = false;
   selectedCategory = this.categories[0];
   ticket: any[] = [];
   ticketGrouped: any[] = [];
@@ -109,6 +109,7 @@ export class PvComponent {
 
   ngOnInit() {
     
+    this.isLoading = true; // activa loading
     
     const type = localStorage.getItem('user')
     this.bandWaiter = type == 'waiter' ? true : false;
@@ -141,7 +142,6 @@ export class PvComponent {
       .subscribe({
         next: (data) => {
           this.categories = data;
-          console.log(data);
           this.selectCategory(this.categories[0]);
         }, 
         error:(e) => {
@@ -149,6 +149,8 @@ export class PvComponent {
         }
       })
     })
+    
+    this.isLoading = false; // desactiva loading
 
 
     
@@ -168,6 +170,28 @@ export class PvComponent {
     })
   }
 
+  addTicket(name: string, count: number) {
+    this.isLoading = true; // activa loading
+  
+    const data = {
+      name: name,
+      quantity: count,
+      id_user: localStorage.getItem('id_user'),
+      id_box: this.idBox
+    };
+  
+    this.ticketService.addTicket(data).subscribe({
+      next: (res: any) => {
+        this.openTicket(res.ticket_id);
+        this.isLoading = false; // desactiva loading
+      },
+      error: () => {
+        this.isLoading = false;
+        alert('Error al abrir la mesa');
+      }
+    });
+  }
+
   openDialog() {
     const dialog = this.dialog.open(CloseBoxComponent, {
       data: { id: this.idBox},
@@ -177,12 +201,15 @@ export class PvComponent {
 
   openTicket(id:any)
   {
+    
+    this.isLoading = true; // activa loading
     this.ticketService.getTicket({id: id})
     .subscribe({
       next: (data:any) => {
         this.ticketActual = data;
         this.isOpenTicket = true
         this.productsTicket = data.products
+        this.isLoading = false; // desactiva loading
       }, 
       error:(e) => {
 
@@ -205,10 +232,11 @@ export class PvComponent {
 
   
   get total() {
-    const totalSent = this.productsTicket.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    const totalPending = this.pendingItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const totalSent = this.productsTicket.reduce((acc, item) => acc + item.total, 0);
+    const totalPending = this.pendingItems.reduce((acc, item) => acc + item.cost * item.quantity, 0);
     return totalSent + totalPending;
   }
+  
   
   addToTicket(product: any) {
     const found = this.pendingItems.find(p => p.name === product.name);
@@ -267,7 +295,7 @@ export class PvComponent {
   }
 
   getTotal(): number {
-    const sent = this.productsTicket.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const sent = this.productsTicket.reduce((acc, item) => acc + item.cost * item.quantity, 0);
     return sent;
   }
   

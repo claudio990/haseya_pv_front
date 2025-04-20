@@ -25,13 +25,21 @@
     </div>
     <div class="table">
       <h2>Abrir mesa</h2>
+    
+      <div class="inp">
+        <p>Nombre:</p>
+        <input type="text" [(ngModel)]="clientName" />
+      </div>
+    
       <div class="inp">
         <p>Personas:</p>
-        <input type="text">
+        <input type="number" min="1" [(ngModel)]="peopleCount" />
       </div>
-      
-      <button>Abrir</button>
+    
+      <button (click)="addTicket(clientName, peopleCount)">Abrir</button>
     </div>
+    
+    
   </div>
   <div class="head_main" *ngIf="isOpenTicket">
     <h3>Mesa: {{ticketActual.name}}</h3>
@@ -99,3 +107,7 @@
    
 </div>
 
+<div class="overlay-loading" *ngIf="isLoading">
+  <div class="spinner"></div>
+  <p>Abriendo mesa...</p>
+</div>

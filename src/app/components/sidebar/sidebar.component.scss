@@ -118,6 +118,12 @@ $main-two: #2d2d2d;
     
 }
 
+@media (max-width: 600px) {
+  .side{
+    display: none;
+  }
+}
+
 
 .Btn {
     margin: 0px 30px;

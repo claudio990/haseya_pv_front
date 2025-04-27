@@ -19,7 +19,8 @@
   margin-top: 50px;
 
   .tables{
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     width: 100%;
     gap: 10px;
     .table {
@@ -215,6 +216,7 @@
   cursor: pointer;
   transition: box-shadow 0.3s;
   text-align: center;
+  height: 220px;
 }
 
 .product-card:hover {
@@ -347,5 +349,36 @@
     to {
       transform: rotate(360deg);
     }
+  }
+}
+
+
+.pay-btn {
+  margin-top: 5px;
+  background: #28a745;
+  color: white;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+}
+
+.payment-form {
+  margin-top: 10px;
+  padding: 10px;
+  background: #f8f8f8;
+  border-radius: 6px;
+  box-shadow: 0px 1px 5px rgba(0,0,0,0.2);
+
+  select, input {
+    width: 100%;
+    margin-top: 5px;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  button {
+    margin: 5px 5px 0 0;
+    padding: 6px 12px;
   }
 }

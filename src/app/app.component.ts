@@ -16,5 +16,5 @@ registerLocaleData(localeEsMX);
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  title = 'krack_back';
+  title = 'Flautas pv';
 }

@@ -39,12 +39,12 @@ export class LoginComponent {
           this.storage.set('id_store', data.store.id);
           this.storage.set('store', data.store.name);
           
-          console.log(data);
           Swal.fire({
             text : 'Ingreso Correctamente',
             confirmButtonColor: "#9f2220",
             confirmButtonText: "ok"
           });
+
           
           location.reload();
           

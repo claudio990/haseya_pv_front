@@ -1,4 +1,4 @@
-<app-sidebar></app-sidebar>
+<app-sidebar *ngIf="!isMobile"></app-sidebar>
 <div [ngClass]="{'body_class':storage.bandActive, 'body_class_s' : !storage.bandActive}">
     <div class="body_main">
         <router-outlet></router-outlet>

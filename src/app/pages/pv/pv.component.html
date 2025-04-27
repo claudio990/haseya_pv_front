@@ -1,8 +1,8 @@
 <div class="start" *ngIf="!isOpenBox && !bandWaiter">
   <p class="text">Comenzar turno</p>
-  <form class="form" action="" [formGroup]="formStartBox">
-    <label for="">Ingresar monto en caja: </label>
-    <input type="text" placeholder="Nombre" class="input_form"  formControlName="moneyStarted">
+  <form class="form" [formGroup]="formStartBox">
+    <label>Ingresar monto en caja:</label>
+    <input type="text" placeholder="Nombre" class="input_form" formControlName="moneyStarted">
     <button class="btn" (click)="onSubmit()">Iniciar Turno</button>
   </form>
 </div>
@@ -12,101 +12,131 @@
   <p>No hay ninguna caja abierta.<br>Pídele al gerente que abra la caja.</p>
 </div>
 
-<div class="pv"  *ngIf="isOpenBox">
+<div class="pv" *ngIf="isOpenBox">
+
+  <!-- Encabezado de mesas abiertas -->
   <div class="head_main" *ngIf="!isOpenTicket">
     <h3>Mesas abiertas</h3>
     <button mat-raised-button (click)="openDialog()" *ngIf="!bandWaiter">Cerrar Caja</button>
   </div>
 
+  <!-- Mesas disponibles -->
   <div class="tables" *ngIf="!isOpenTicket">
     <div class="table" *ngFor="let table of tickets" (click)="openTicket(table.id)">
-      <h2>{{table.name}}</h2>
-      <p>Personas: {{table.quantity}}</p>
+      <h2>{{ table.name }}</h2>
+      <p>Personas: {{ table.quantity }}</p>
     </div>
+
+    <!-- Abrir nueva mesa -->
     <div class="table">
       <h2>Abrir mesa</h2>
-    
+
       <div class="inp">
         <p>Nombre:</p>
         <input type="text" [(ngModel)]="clientName" />
       </div>
-    
+
       <div class="inp">
         <p>Personas:</p>
         <input type="number" min="1" [(ngModel)]="peopleCount" />
       </div>
-    
+
       <button (click)="addTicket(clientName, peopleCount)">Abrir</button>
     </div>
-    
-    
-  </div>
-  <div class="head_main" *ngIf="isOpenTicket">
-    <h3>Mesa: {{ticketActual.name}}</h3>
-    <button mat-raised-button (click)="closeTicket()" *ngIf="!bandWaiter">Atrás</button>
   </div>
 
-  <!-- Tickets  -->
-  <div class="ticket-container" *ngIf="isOpenTicket">
-    <!-- Categorías -->
-    <div class="category-bar">
-      <div 
-        class="category" 
-        *ngFor="let cat of categories" 
-        [class.active]="cat === selectedCategory"
-        (click)="selectCategory(cat)">
-        {{ cat.name }}
-      </div>
+  <!-- Ticket abierto -->
+  <div *ngIf="isOpenTicket">
+    <div class="head_main">
+      <h3>Mesa: {{ ticketActual.name }}</h3>
+      <button mat-raised-button (click)="closeTicket()" *ngIf="!bandWaiter">Atrás</button>
     </div>
-  
-    <div class="main-content">
-      <!-- Productos -->
-      <div class="products">
+
+    <!-- Contenido del ticket -->
+    <div class="ticket-container">
+      
+      <!-- Categorías -->
+      <div class="category-bar">
         <div 
-          class="product-card" 
-          *ngFor="let product of selectedCategory?.products"
-          (click)="addToTicket(product)">
-          <img src="http://localhost:8000/storage/products/{{product.image}}" alt="{{ product.name }}" />
-          <div class="product-info">
-            <h4>{{ product.name }}</h4>
-            <p>${{ product.cost }}</p>
-          </div>
+          class="category" 
+          *ngFor="let cat of categories" 
+          [class.active]="cat === selectedCategory"
+          (click)="selectCategory(cat)">
+          {{ cat.name }}
         </div>
       </div>
-  
-      <div class="ticket">
-        <h3>Ticket</h3>
-      
-        <!-- Productos enviados -->
-        <ul>
-          <li *ngFor="let item of productsTicket">
-            {{ item.name }} x{{ item.quantity }}
-            <span class="locked">✔️ enviado</span>
-          </li>
-      
-          <!-- Productos pendientes -->
-          <li *ngFor="let item of pendingItems">
-            {{ item.name }} x{{ item.quantity }}
-            <button (click)="removeItem(item)">❌</button>
-          </li>
-        </ul>
-      
-        <p class="total">Total: ${{ total }}</p>
-      
-        <!-- Botones -->
-        <button class="send-btn" [disabled]="pendingItems.length === 0" (click)="sendOrder()">Enviar comanda</button>
-        <button class="clear-btn" [disabled]="pendingItems.length === 0" (click)="clearPending()">Limpiar no enviados</button>
-      </div>
-      
-    </div>
-  </div>
-  
-  
-  
 
-   
+      <div class="main-content">
+        
+        <!-- Productos -->
+        <div class="products">
+          <div 
+            class="product-card" 
+            *ngFor="let product of selectedCategory?.products"
+            (click)="addToTicket(product)">
+            <img src="http://localhost:8000/storage/products/{{product.image}}" alt="{{ product.name }}" />
+            <div class="product-info">
+              <h4>{{ product.name }}</h4>
+              <p>${{ product.cost }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detalle del Ticket -->
+        <div class="ticket">
+          <h3>Ticket</h3>
+
+          <!-- Productos enviados -->
+          <ul>
+            <li *ngFor="let item of productsTicket">
+              {{ item.name }} x{{ item.quantity }}
+              <span class="locked">✔️ enviado</span>
+            </li>
+
+            <!-- Productos pendientes -->
+            <li *ngFor="let item of pendingItems">
+              {{ item.name }} x{{ item.quantity }}
+              <button (click)="removeItem(item)">❌</button>
+            </li>
+          </ul>
+
+          <p class="total">Total: ${{ total }}</p>
+
+          <!-- Botones de comanda -->
+          <button class="send-btn" [disabled]="pendingItems.length === 0" (click)="sendOrder()">Enviar comanda</button>
+          <button class="clear-btn" [disabled]="pendingItems.length === 0" (click)="clearPending()">Limpiar no enviados</button>
+
+          <!-- Botón para cobrar -->
+          <button class="pay-btn" [disabled]="productsTicket.length === 0" (click)="startPayment()">Cobrar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulario de Pago -->
+    <div class="payment-form" *ngIf="showPaymentForm">
+      <h3>Cobrar Ticket</h3>
+
+      <label>Método de pago:</label>
+      <select [(ngModel)]="paymentMethod">
+        <option value="efectivo">Efectivo</option>
+        <option value="tarjeta">Tarjeta</option>
+        <option value="transferencia">Transferencia</option>
+      </select>
+
+      <div *ngIf="paymentMethod === 'efectivo'">
+        <label>Pago con:</label>
+        <input type="number" [(ngModel)]="amountReceived">
+        <p *ngIf="amountReceived">Cambio: ${{ amountReceived - total >= 0 ? (amountReceived - total) : 0 }}</p>
+      </div>
+
+      <button class="send-btn" (click)="payTicket()">Confirmar pago</button>
+      <button class="send-btn" (click)="cancelPayment()">Cancelar</button>
+    </div>
+
+  </div>
 </div>
 
+<!-- Cargando al abrir mesa -->
 <div class="overlay-loading" *ngIf="isLoading">
   <div class="spinner"></div>
   <p>Abriendo mesa...</p>

@@ -67,6 +67,13 @@
                 <p *ngIf="storage.bandActive">Punto de Venta</p>
             </a>
         </div>
+
+        <div class="page" *ngIf="bandKitchen">
+            <a href="" class=""  [routerLink]="['kitchen']">
+                <i class="bi bi-shop"></i>
+                <p *ngIf="storage.bandActive">Cocina</p>
+            </a>
+        </div>
       
         <div class="page" >
             <button class="Btn" (click)="logOut()">

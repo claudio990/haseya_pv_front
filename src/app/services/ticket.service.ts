@@ -36,6 +36,10 @@ export class TicketService {
     return this.httpService.ejectQuery('getTicket', query);
   }
 
+  payTicket(query:any)
+  {
+    return this.httpService.ejectPost('payTicket', query);
+  }
 
   //Abonos
   getAbonos(query:any) 

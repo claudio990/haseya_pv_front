@@ -68,7 +68,6 @@ export class PvComponent {
   isOpenTicket : any = false;
   client: any = 'Venta General';
   peopleCount: number = 1;
-  paymentMethod: string = '';
   clientName: string = '';
   categories: any = [
   ];
@@ -79,6 +78,9 @@ export class PvComponent {
 
   productsTicket: any[] = []; // Ya enviados (precargados desde backend)
   pendingItems: any[] = [];
+  paymentMethod: string = 'efectivo';
+  amountReceived: number = 0;
+  showPaymentForm: boolean = false;
   // total: number = 0;
   constructor(private fb: FormBuilder, 
               private productService: ProductsService, 
@@ -187,7 +189,7 @@ export class PvComponent {
       },
       error: () => {
         this.isLoading = false;
-        alert('Error al abrir la mesa');
+        Swal.fire('Error al abrir la mesa');
       }
     });
   }
@@ -234,6 +236,7 @@ export class PvComponent {
   get total() {
     const totalSent = this.productsTicket.reduce((acc, item) => acc + item.total, 0);
     const totalPending = this.pendingItems.reduce((acc, item) => acc + item.cost * item.quantity, 0);
+
     return totalSent + totalPending;
   }
   
@@ -250,7 +253,12 @@ export class PvComponent {
   
   removeItem(item: any) {
     const index = this.pendingItems.findIndex(p => p.name === item.name);
-    if (index > -1) {
+
+    if(item.quantity > 1 )
+    {
+      item.quantity = item.quantity - 1 
+    }
+    else if (index > -1) {
       this.pendingItems.splice(index, 1);
     }
   }
@@ -261,7 +269,7 @@ export class PvComponent {
   
   sendOrder() {
     if (this.pendingItems.length === 0) {
-      alert('No hay productos nuevos para enviar');
+      Swal.fire('No hay productos nuevos para enviar');
       return;
     }
   
@@ -280,28 +288,42 @@ export class PvComponent {
           const found = this.productsTicket.find(x => x.code === p.code);
           if (found) {
             found.quantity += p.quantity;
+            found.total += p.cost * p.quantity; // también actualizas el total si ya existe
           } else {
-            this.productsTicket.push({ ...p });
+            this.productsTicket.push({ 
+              ...p,
+              total: p.cost * p.quantity
+            });
           }
         });
-  
+        
         this.pendingItems = [];
-        alert('Comanda enviada con éxito');
+        
+        Swal.fire('Comanda Enviada');
       },
       error: () => {
-        alert('Hubo un error al enviar la comanda');
+        Swal.fire('Hubo un error al enviar la comanda')
       }
     });
   }
 
   getTotal(): number {
-    const sent = this.productsTicket.reduce((acc, item) => acc + item.cost * item.quantity, 0);
+    const sent = this.productsTicket.reduce((acc, item) => acc + item.total, 0);
+
+    
     return sent;
   }
   
+
+  startPayment()
+  {
+    this.showPaymentForm = true;
+
+  }
+
   chargeTicket() {
     if (!this.paymentMethod) {
-      alert('Selecciona un método de pago');
+      Swal.fire('Selecciona un método de pago')
       return;
     }
   
@@ -322,6 +344,42 @@ export class PvComponent {
     // });
   }
   
+
+  
+  payTicket() {
+    const paymentData = {
+      id: this.ticketActual.id,
+      method: this.paymentMethod,
+      discount: 0,
+      subtotal: this.total,
+      total: this.total
+    };
+
+    this.ticketService.payTicket(paymentData).subscribe({
+      next: (res: any) => {
+        Swal.fire('Pago exitoso');
+        this.closeTicket();
+        this.showPaymentForm = false;
+        this.ticketService.getTicketsBox({id_box: this.idBox})
+        .subscribe({
+          next: (data) => {
+            this.tickets = data;
+            
+          }, 
+          error:(e) => {
+    
+          }
+        })
+      },
+      error: () => {
+        Swal.fire('Error al cobrar');
+      }
+    });
+  }
+
+  cancelPayment() {
+    this.showPaymentForm = false;
+  }
   
 
 

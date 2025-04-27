@@ -36,10 +36,11 @@ export class ProductsService {
     return this.httpService.ejectQuery('getProductsBox', query);
   }
 
-  addProductsToTicket(products: any[], ticketId: any) {
+  addProductsToTicket(products: any[], ticketId: any, idStore: any) {
     return this.httpService.ejectPost('addProductsToTicket', {
       id_ticket: ticketId,
-      products: products
+      products: products,
+      id_store: idStore
     });
   }
   addProduct(query:any)
@@ -130,4 +131,14 @@ export class ProductsService {
     return this.httpService.ejectPost('upProduct', query);
   }
     
+  //Commands
+  getCommands(query: any)
+  {
+    return this.httpService.ejectQuery('getCommands', query);
+  }
+
+  updateCommand(query: any)
+  {
+    return this.httpService.ejectPost('updateCommand', query);
+  }
 }

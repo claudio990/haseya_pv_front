@@ -43,10 +43,23 @@ export class LoginComponent {
             text : 'Ingreso Correctamente',
             confirmButtonColor: "#9f2220",
             confirmButtonText: "ok"
-          });
+          }).then(() => {
+            if(data.user.type == 'waiter' || data.user.type == 'manager')
+            {
+              location.assign("http://localhost:4200/main/pv");
+            }
+            else if(data.user.type == 'admin')
+            {
+              location.assign("http://localhost:4200/main/dashboard");
+            }
+            else if(data.user.type == 'kitchen')
+            {
+              location.assign("http://localhost:4200/main/kitchen");
+            }
+          })
 
           
-          location.reload();
+          // location.reload();
           
         },
         error: (response : any) => {

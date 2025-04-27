@@ -1,72 +1,83 @@
 .kitchen-container {
-    padding: 20px;
-    text-align: center;
-  
-    h1 {
-      margin-bottom: 20px;
-    }
-  
-    .orders-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-    }
-  
-    .order-card {
-      background-color: #fff;
-      width: 300px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-      transition: transform 0.3s;
-      text-align: left;
-  
-      h2 {
-        margin-top: 0;
-      }
-  
-      ul {
-        list-style-type: none;
-        padding: 0;
-  
-        li {
-          margin-bottom: 8px;
-        }
-      }
-  
-      button {
-        margin-top: 10px;
-        padding: 10px 15px;
-        background-color: #28a745;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        width: 100%;
-        font-size: 16px;
-        transition: background-color 0.3s;
-  
-        &:hover {
-          background-color: #218838;
-        }
-      }
-  
-      &:hover {
-        transform: translateY(-5px);
-      }
+  padding: 20px;
+  text-align: center;
+
+  h1 {
+    margin-bottom: 20px;
+    color: #333;
+  }
+}
+
+.orders-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.order-card {
+  background: #ffffff;
+  border: 2px solid #cccccc;
+  border-radius: 12px;
+  width: 300px;
+  padding: 20px;
+  text-align: left;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.5s, border-color 0.5s;
+}
+
+.order-header {
+  margin-bottom: 15px;
+
+  h2 {
+    font-size: 1.5rem;
+    color: #444;
+  }
+}
+
+.order-items {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+
+  li {
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+    color: #666;
+  }
+}
+
+.order-actions {
+  text-align: center;
+
+  button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: #45a049;
     }
   }
-  
-  /* Adaptación para móviles */
-  @media screen and (max-width: 768px) {
-    .orders-list {
-      flex-direction: column;
-      align-items: center;
-    }
-  
-    .order-card {
-      width: 90%;
-    }
+}
+
+// Estilo para las nuevas comandas (brillan)
+.new-order {
+  animation: flash 1s ease-in-out infinite alternate;
+  background-color: #fffbcc;
+  border-color: #ffd700;
+}
+
+@keyframes flash {
+  from {
+    background-color: #fff8a0;
   }
-  
+  to {
+    background-color: #ffffff;
+  }
+}

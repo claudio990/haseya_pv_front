@@ -281,7 +281,7 @@ export class PvComponent {
       total: item.cost * item.quantity
     }));
     // Llamada al backend usando productService
-    this.productService.addProductsToTicket(payload, this.ticketActual.id).subscribe({
+    this.productService.addProductsToTicket(payload, this.ticketActual.id, localStorage.getItem('id_store')).subscribe({
       next: () => {
         // Fusionar a los productos ya enviados
         this.pendingItems.forEach(p => {

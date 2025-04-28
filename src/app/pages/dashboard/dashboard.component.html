@@ -1,93 +1,72 @@
-<div class="main" *ngIf="false">
-    <div class="sells">
-        <div class="sell">
-            <div class="icon">
-                <i class="bi bi-file-bar-graph-fill"></i>
-            </div>
-
-            <div class="inf">
-                <p class="amount">$ {{dashboard.day}}</p>
-                <p class="text">Ventas del Día</p>
-            </div>
+<div class="dashboard-container" id="dashboard-report">
+    <div class="header">
+        <h1>Dashboard de Finanzas</h1>
+        <div class="actions">
+          <select [(ngModel)]="periodoSeleccionado" (change)="filtrarDatos()">
+            <option value="Mes">Mes</option>
+            <option value="Semana">Semana</option>
+          </select>
+    
+          <select [(ngModel)]="tiendaSeleccionada" (change)="filtrarDatos()">
+            <option value="Todas">Todas las Tiendas</option>
+            <option *ngFor="let tienda of tiendas" [value]="tienda">{{ tienda }}</option>
+          </select>
+    
+          <button class="btn-export" (click)="exportarPDF()">Exportar PDF</button>
         </div>
-
-        <div class="sell">
-            <div class="icon">
-                <i class="bi bi-calendar2-week-fill"></i>
-            </div>
-
-            <div class="inf">
-                <p class="amount">$ {{dashboard.weekly}}</p>
-                <p class="text">Ventas últimos 7 días</p>
-            </div>
+      </div>
+    
+      <section class="summary-cards">
+        <div class="card">
+          <h3>Ventas del {{ periodoSeleccionado }}</h3>
+          <p>{{ periodoSeleccionado === 'Mes' ? resumenVentas.ventasMes : resumenVentas.ventasSemana | currency }}</p>
         </div>
-
-        <div class="sell">
-            <div class="icon">
-                <i class="bi bi-graph-up-arrow"></i>
-            </div>
-
-            <div class="inf">
-                <p class="amount">$ {{dashboard.monthly}}</p>
-                <p class="text">Ventas de este Mes</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="table_main" style="margin-top: 50px;">
-        <h3>Vendedoras</h3>
-        <mat-form-field>
-        <mat-label>Filter</mat-label>
-        <input matInput (keyup)="applyFilter($event)" placeholder="Ex. Mia" #input>
-        </mat-form-field>
-        
-        <div class="mat-elevation-z8">
-        <table mat-table [dataSource]="dataSource" matSort>
-        
-            <!-- Name Column -->
-            <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Nombre </th>
-            <td mat-cell *matCellDef="let row"> {{row.name}} </td>
-            </ng-container>
-
-            <!-- ID Column -->
-            <ng-container matColumnDef="day">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Hoy </th>
-            <td mat-cell *matCellDef="let row"> {{row.day}} </td>
-            </ng-container>
-
-            <!-- ID Column -->
-            <ng-container matColumnDef="week">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Últimos 7 días </th>
-                <td mat-cell *matCellDef="let row"> {{row.week}} </td>
-                </ng-container>
-                
-                <!-- ID Column -->
-            <ng-container matColumnDef="month">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Este mes </th>
-                <td mat-cell *matCellDef="let row"> {{row.month}} </td>
-                </ng-container>
-        
-        
-        
-         
-
-        
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        
-            <!-- Row shown when there is no matching data. -->
-            <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell" colspan="4">No data matching the filter "{{input.value}}"</td>
-            </tr>
-        </table>
-        
-        <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
-        </div>
-
-    </div>
-</div>
-
-<div class="main">
-    <p class="text" style="margin: auto; color: gray; font-size: 40px;">MANTENIMIENTO !</p>
-</div>
+      </section>
+  
+    <section class="summary-cards">
+      <div class="card">
+        <h3>Ventas del Mes</h3>
+        <p>{{ resumenVentas.ventasMes  }}</p>
+      </div>
+      <div class="card">
+        <h3>Ventas de la Semana</h3>
+        <p>{{ resumenVentas.ventasSemana  }}</p>
+      </div>
+    </section>
+  
+    <section class="chart-section">
+      <h2>Ventas Diarias</h2>
+      <canvas #ventasDiariasChart></canvas>
+    </section>
+  
+    <section class="chart-section">
+      <h2>Productos Más Vendidos por Horario</h2>
+      <canvas #productosPopularesChart></canvas>
+    </section>
+  
+    <section class="chart-section">
+      <h2>Horario de Más Ventas</h2>
+      <canvas #horariosVentaChart></canvas>
+    </section>
+  
+    <section class="tables-section">
+      <h2>Ventas por Restaurante</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Restaurante</th>
+            <th>Ventas</th>
+            <th>Tickets</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let restaurante of restaurantesFiltrados">
+            <td>{{ restaurante.nombre }}</td>
+            <td>{{ restaurante.ventas  }}</td>
+            <td>{{ restaurante.tickets }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+  

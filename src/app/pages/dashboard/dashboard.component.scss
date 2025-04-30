@@ -1,6 +1,9 @@
 .dashboard-container {
     padding: 2rem;
-  
+
+    .select{
+
+    }
     .header {
       display: flex;
       justify-content: space-between;
@@ -12,6 +15,7 @@
       color: white;
       padding: 8px 16px;
       border: none;
+      margin-left: 10px;
       border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
@@ -67,5 +71,13 @@
         }
       }
     }
+  }
+  
+
+  #dashboard-report {
+    width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
   }
   

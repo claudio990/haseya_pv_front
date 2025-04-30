@@ -2,6 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Chart } from 'chart.js/auto';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
+
 
 @Component({
   selector: 'app-dashboard',
@@ -142,15 +146,34 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   exportarPDF() {
-    const dashboard = document.getElementById('dashboard-report');
-    const options = {
-      margin: 10,
-      filename: 'reporte-finanzas.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    // html2pdf().from(dashboard).set(options).save();
+    const element = document.getElementById('dashboard-report');
+    if (!element) return;
+  
+    html2canvas(element, { scale: 2 }).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+  
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+  
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * pageWidth) / canvas.width;
+  
+      let heightLeft = imgHeight;
+      let position = 0;
+  
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+  
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+  
+      pdf.save('reporte-finanzas.pdf');
+    });
   }
+  
 }

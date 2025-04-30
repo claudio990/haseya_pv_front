@@ -2,17 +2,17 @@
     <div class="header">
         <h1>Dashboard de Finanzas</h1>
         <div class="actions">
-          <select [(ngModel)]="periodoSeleccionado" (change)="filtrarDatos()">
+          <select [(ngModel)]="periodoSeleccionado" (change)="filtrarDatos()" class="select">
             <option value="Mes">Mes</option>
             <option value="Semana">Semana</option>
           </select>
     
-          <select [(ngModel)]="tiendaSeleccionada" (change)="filtrarDatos()">
+          <select [(ngModel)]="tiendaSeleccionada" (change)="filtrarDatos()" class="select">
             <option value="Todas">Todas las Tiendas</option>
             <option *ngFor="let tienda of tiendas" [value]="tienda">{{ tienda }}</option>
           </select>
     
-          <button class="btn-export" (click)="exportarPDF()">Exportar PDF</button>
+          <button class="btn-export btn-print" (click)="exportarPDF()">Exportar PDF</button>
         </div>
       </div>
     

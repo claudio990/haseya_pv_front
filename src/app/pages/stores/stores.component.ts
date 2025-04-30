@@ -6,10 +6,11 @@ import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 
 import {MatButtonModule} from '@angular/material/button';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
 import { StoreServiceService } from '../../services/store-service.service';
 import { CommonModule } from '@angular/common';
+import { TicketService } from '../../services/ticket.service';
 
 @Component({
   selector: 'app-stores',
@@ -32,15 +33,20 @@ export class StoresComponent implements OnInit{
   stores: any = [];
   displayedColumns: string[] = ['name', 'options'];
   dataSource: MatTableDataSource<any>;
+  tickets: any = [];
+  idStore: any;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
-  constructor(private service: StoreServiceService){}
+  constructor(
+    private service: StoreServiceService, 
+    private serviceTicket: TicketService, 
+    private route: ActivatedRoute
+  ){}
 
   ngOnInit(): void {
-   this.getStores()
-
+    this.getStores()
   }
 
   getStores()
@@ -54,6 +60,7 @@ export class StoresComponent implements OnInit{
       this.dataSource.sort = this.sort;
     })
   }
+
 
   addStore() {
 

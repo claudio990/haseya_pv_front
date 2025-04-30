@@ -50,12 +50,19 @@ export class StoreComponent implements OnInit{
   ingredientsProduct:any =[];
   employees:any = [];
   inventories: any = [];
+  isLoading: boolean = false;
+  coupons: any = [];
 
 
   //table for tickets
   displayedColumnsTickets: string[] = ['employee', 'total','method','options'];
   dataSourceTickets: MatTableDataSource<any>;
   @ViewChild('ticketsPaginator') ticketsPaginator: MatPaginator;
+
+  //table for Coupons
+  displayedColumnsCoupons: string[] = ['name','quantity', 'discount','options'];
+  dataSourceCoupons: MatTableDataSource<any>;
+  @ViewChild('couponsPaginator') couponsPaginator: MatPaginator;
 
   //table for Products
   displayedColumnsProducts: string[] = ['name', 'cost', 'category', 'options'];
@@ -91,6 +98,7 @@ export class StoreComponent implements OnInit{
   ){}
 
   ngOnInit(): void {
+    this.isLoading = true; // activa loading
     this.id_store = this.route.snapshot.paramMap.get('id');
 
     this.storeService.getStore({id: this.id_store})
@@ -103,6 +111,7 @@ export class StoreComponent implements OnInit{
     this.getEmployees();
     this.getIngredients();
     this.getInventories();
+    this.getCoupons();
 
     this.categoryService.getCategories()
     .subscribe((res: any) => {
@@ -110,13 +119,31 @@ export class StoreComponent implements OnInit{
       
     })
 
+
+    this.isLoading = false; // activa loading
+
   
+  }
+
+  getCoupons()
+  {
+    this.storeService.getCoupons({id_store: this.id_store})
+    .subscribe((res: any) => {
+      res.reverse();
+      console.log(res);
+      
+      this.coupons = res;
+      this.dataSourceCoupons = new MatTableDataSource(this.coupons);
+      this.dataSourceCoupons.paginator = this.couponsPaginator;
+      this.dataSourceCoupons.sort = this.sort;
+    })
   }
 
   getSells()
   {
     this.ticketService.getAllTickets({id_store: this.id_store}).
     subscribe((res:any) => {
+      res.reverse();
       this.tickets = res;
       this.dataSourceTickets = new MatTableDataSource(this.tickets);
       this.dataSourceTickets.paginator = this.ticketsPaginator;
@@ -175,125 +202,205 @@ export class StoreComponent implements OnInit{
     })
   }
 
-    applyFilterTickets(event: Event) {
-        const filterValue = (event.target as HTMLInputElement).value;
-        this.dataSourceTickets.filter = filterValue.trim().toLowerCase();
-    
-        if (this.dataSourceTickets.paginator) {
-          this.dataSourceTickets.paginator.firstPage();
-        }
-      }
-
-    applyFilterProducts(event: Event) {
+  applyFilterTickets(event: Event) {
       const filterValue = (event.target as HTMLInputElement).value;
-      this.dataSourceProducts.filter = filterValue.trim().toLowerCase();
+      this.dataSourceTickets.filter = filterValue.trim().toLowerCase();
   
-      if (this.dataSourceProducts.paginator) {
-        this.dataSourceProducts.paginator.firstPage();
+      if (this.dataSourceTickets.paginator) {
+        this.dataSourceTickets.paginator.firstPage();
       }
-    }  
-
-    applyFilterIngredient(event: Event) {
-      const filterValue = (event.target as HTMLInputElement).value;
-      this.dataSourceIngredient.filter = filterValue.trim().toLowerCase();
-  
-      if (this.dataSourceIngredient.paginator) {
-        this.dataSourceIngredient.paginator.firstPage();
-      }
-    }  
-
-    applyFilterEmployees(event: Event) {
-      const filterValue = (event.target as HTMLInputElement).value;
-      this.dataSourceEmployees.filter = filterValue.trim().toLowerCase();
-  
-      if (this.dataSourceEmployees.paginator) {
-        this.dataSourceEmployees.paginator.firstPage();
-      }
-    }  
-
-    applyFilterInventories(event: Event) {
-      const filterValue = (event.target as HTMLInputElement).value;
-      this.dataSourceInventories.filter = filterValue.trim().toLowerCase();
-  
-      if (this.dataSourceInventories.paginator) {
-        this.dataSourceInventories.paginator.firstPage();
-      }
-    }  
-    
-
-    addProduct() {
-      this.formData = new FormData();
-    
-      // Generar las opciones del select a partir de las categorías
-      const categoryOptions = this.categories
-        .map((category:any) => `<option value="${category.id}">${category.name}</option>`)
-        .join('');
-    
-      Swal.fire({
-        title: "Sube el Producto",
-        html: `
-          <label for="name">Nombre</label>
-          <input id="name" class="swal2-input" placeholder="Nombre del Producto">
-          
-          <label for="cost">Costo</label>
-          <input id="cost" type="number" class="swal2-input" placeholder="Ingresa el costo">
-    
-          <label for="category">Categoría</label>
-          <select id="category" class="swal2-select">
-            <option value="" disabled selected>Selecciona una categoría</option>
-            ${categoryOptions}
-          </select>
-    
-          <label for="file">Sube la imagen</label>
-          <input id="file" type="file" class="swal2-file">
-        `,
-        focusConfirm: false,
-        showCancelButton: true,
-        confirmButtonText: "Enviar",
-        showLoaderOnConfirm: true,
-        preConfirm: () => {
-          const codeInput = document.getElementById('code') as HTMLInputElement;
-          const nameInput = document.getElementById('name') as HTMLInputElement;
-          const costInput = document.getElementById('cost') as HTMLInputElement;
-          const categorySelect = document.getElementById('category') as HTMLSelectElement;
-          const fileInput = document.getElementById('file') as HTMLInputElement;
-    
-          const code = codeInput?.value.trim();
-          const name = nameInput?.value.trim();
-          const cost = costInput?.value.trim();
-          const category = categorySelect?.value;
-          const file = fileInput?.files?.[0];
-    
-          if ( !name || !cost || !category || !file) {
-            Swal.showValidationMessage('Por favor llena todos los campos.');
-            return false;
-          }
-    
-          // Añadimos los valores a formData
-          this.formData.append('name', name);
-          this.formData.append('cost', cost);
-          this.formData.append('id_category', category);
-          this.formData.append('file', file);
-          this.formData.append('id_store', this.id_store);
-    
-          return { code, name, cost, category, file };
-        },
-        allowOutsideClick: () => !Swal.isLoading()
-      }).then((result) => {
-        if (result.isConfirmed && result.value) {
-          this.productService.addProduct(this.formData)
-            .subscribe(
-              (res: any) => {
-                Swal.fire('¡Producto añadido!', 'El producto se ha subido exitosamente.', 'success');
-                this.getProducts();
-              },
-              (err: any) => {
-                Swal.fire('Error', 'Hubo un problema al subir el producto.', 'error');
-              }
-            );
-        }
-      });
     }
+
+  applyFilterCoupon(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSourceCoupons.filter = filterValue.trim().toLowerCase();
+
+    if (this.dataSourceCoupons.paginator) {
+      this.dataSourceCoupons.paginator.firstPage();
+    }
+  }
+
+
+  applyFilterProducts(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSourceProducts.filter = filterValue.trim().toLowerCase();
+
+    if (this.dataSourceProducts.paginator) {
+      this.dataSourceProducts.paginator.firstPage();
+    }
+  }  
+
+  applyFilterIngredient(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSourceIngredient.filter = filterValue.trim().toLowerCase();
+
+    if (this.dataSourceIngredient.paginator) {
+      this.dataSourceIngredient.paginator.firstPage();
+    }
+  }  
+
+  applyFilterEmployees(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSourceEmployees.filter = filterValue.trim().toLowerCase();
+
+    if (this.dataSourceEmployees.paginator) {
+      this.dataSourceEmployees.paginator.firstPage();
+    }
+  }  
+
+  applyFilterInventories(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSourceInventories.filter = filterValue.trim().toLowerCase();
+
+    if (this.dataSourceInventories.paginator) {
+      this.dataSourceInventories.paginator.firstPage();
+    }
+  }  
+  
+
+  addProduct() {
+    this.formData = new FormData();
+  
+    // Generar las opciones del select a partir de las categorías
+    const categoryOptions = this.categories
+      .map((category:any) => `<option value="${category.id}">${category.name}</option>`)
+      .join('');
+  
+    Swal.fire({
+      title: "Sube el Producto",
+      html: `
+        <label for="name">Nombre</label>
+        <input id="name" class="swal2-input" placeholder="Nombre del Producto">
+        
+        <label for="cost">Costo</label>
+        <input id="cost" type="number" class="swal2-input" placeholder="Ingresa el costo">
+  
+        <label for="category">Categoría</label>
+        <select id="category" class="swal2-select">
+          <option value="" disabled selected>Selecciona una categoría</option>
+          ${categoryOptions}
+        </select>
+  
+        <label for="file">Sube la imagen</label>
+        <input id="file" type="file" class="swal2-file">
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: "Enviar",
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        const codeInput = document.getElementById('code') as HTMLInputElement;
+        const nameInput = document.getElementById('name') as HTMLInputElement;
+        const costInput = document.getElementById('cost') as HTMLInputElement;
+        const categorySelect = document.getElementById('category') as HTMLSelectElement;
+        const fileInput = document.getElementById('file') as HTMLInputElement;
+  
+        const code = codeInput?.value.trim();
+        const name = nameInput?.value.trim();
+        const cost = costInput?.value.trim();
+        const category = categorySelect?.value;
+        const file = fileInput?.files?.[0];
+  
+        if ( !name || !cost || !category || !file) {
+          Swal.showValidationMessage('Por favor llena todos los campos.');
+          return false;
+        }
+  
+        // Añadimos los valores a formData
+        this.formData.append('name', name);
+        this.formData.append('cost', cost);
+        this.formData.append('id_category', category);
+        this.formData.append('file', file);
+        this.formData.append('id_store', this.id_store);
+  
+        return { code, name, cost, category, file };
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        this.productService.addProduct(this.formData)
+          .subscribe(
+            (res: any) => {
+              Swal.fire('¡Producto añadido!', 'El producto se ha subido exitosamente.', 'success');
+              this.getProducts();
+            },
+            (err: any) => {
+              Swal.fire('Error', 'Hubo un problema al subir el producto.', 'error');
+            }
+          );
+      }
+    });
+  }
+
+  addCoupon()
+  {
+
+    this.formData = new FormData();
+  
+    // Generar las opciones del select a partir de las categorías
+    const categoryOptions = this.categories
+      .map((category:any) => `<option value="${category.id}">${category.name}</option>`)
+      .join('');
+  
+    Swal.fire({
+      title: "Añade el cupón",
+      html: `
+        <label for="name">Nombre</label>
+        <input id="name" class="swal2-input" placeholder="Nombre del Cupón">
+        
+        <label for="quantity">Cantidad</label>
+        <input id="quantity" type="number" class="swal2-input" placeholder="Ingresa la cantidad">
+  
+        <label for="discount">Descuento</label>
+        <input id="discount" type="number" class="swal2-input" placeholder="Descuento %">
+  
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: "Enviar",
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        const quantityInput = document.getElementById('quantity') as HTMLInputElement;
+        const nameInput = document.getElementById('name') as HTMLInputElement;
+        const discountInput = document.getElementById('discount') as HTMLInputElement;
+  
+        const quantity = quantityInput?.value.trim();
+        const name = nameInput?.value.trim();
+        const discount = discountInput?.value.trim();
+  
+        if ( !name || !quantity || !discount ) {
+          Swal.showValidationMessage('Por favor llena todos los campos.');
+          return false;
+        }
+  
+        // Añadimos los valores a formData
+        this.formData.append('name', name);
+        this.formData.append('quantity', quantity);
+        this.formData.append('discount', discount);
+        this.formData.append('id_store', this.id_store);
+  
+        return { quantity, name, discount };
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+
+        console.log(this.formData);
+        
+        this.storeService.addCoupon(this.formData)
+          .subscribe(
+            (res: any) => {
+              Swal.fire('Cupón añadido!', 'El cupón se ha subido exitosamente.', 'success');
+              this.getCoupons();
+            },
+            (err: any) => {
+              Swal.fire('Error', 'Hubo un problema al subir el cupón.', 'error');
+            }
+          );
+      }
+    });
+
+  }
 
   addIngredient()
   {
@@ -546,6 +653,31 @@ export class StoreComponent implements OnInit{
         
       }
     });
+  }
+
+  deleteCoupon(id: any)
+  {
+    Swal.fire({
+      title: "Deseas eliminar el cupón?",
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: "Eliminar"
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+
+        this.storeService.deleteCoupon({id: id})
+        .subscribe((res:any) =>{
+    
+    
+          this.getCoupons();
+          Swal.fire("Eliminado!");
+        })
+
+        
+      }
+    });
+   
   }
 
   upIngredient(id:any, ingredient: any)

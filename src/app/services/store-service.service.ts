@@ -37,4 +37,19 @@ export class StoreServiceService {
   {
     return this.httpService.ejectPost('deleteStore', query);
   }
+
+
+  //Coupons
+  getCoupons(query:any)
+  {
+    return this.httpService.ejectQuery('getCoupons', query);
+  }
+  addCoupon(query:any)
+  {
+    return this.httpService.ejectPost('addCoupon', query, this.options);
+  }
+  deleteCoupon(query:any)
+  {
+    return this.httpService.ejectPost('deleteCoupon', query);
+  }
 }

@@ -2,7 +2,7 @@
 
     <div class="head_main">
         <h3>Bajas de Productos</h3>
-        <button mat-raised-button [routerLink]="['../products']">Regresar</button>
+        <button mat-raised-button (click)="back()">Regresar</button>
     </div>
 
     <div class="table_main">
@@ -15,9 +15,9 @@
         <table mat-table [dataSource]="dataSource" matSort>
         
             <!-- ID Column -->
-            <ng-container matColumnDef="code">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Código </th>
-            <td mat-cell *matCellDef="let row"> {{row.code}} </td>
+            <ng-container matColumnDef="ingredient">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Ingrediente </th>
+            <td mat-cell *matCellDef="let row"> {{row.ingredient}} </td>
             </ng-container>
         
         

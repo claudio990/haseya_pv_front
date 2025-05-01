@@ -29,16 +29,14 @@ export class UpProductsComponent implements OnInit{
 
   constructor(private service: ProductsService) {
 
-    
-    
-
-    
   }
   ngOnInit() {
-    this.service.ups().subscribe((res:any) => {
+    console.log(localStorage.getItem('id_store'));
+    
+    this.service.ups({id_store: localStorage.getItem('id_store')}).subscribe((res:any) => {
       res.map((key: any) => {
         
-        this.downs.push({code: key.id_product, quantity: key.quantity, date: key.created_at})
+        this.downs.push({ingredient: key.ingredient, quantity: key.quantity, date: key.created_at})
       })
 
       this.dataSource = new MatTableDataSource(this.downs);
@@ -62,6 +60,11 @@ export class UpProductsComponent implements OnInit{
   {
 
   
+  }
+
+  back()
+  {
+    window.history.back()
   }
 
 }

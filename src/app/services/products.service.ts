@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment.development';
 import { HttpClient } from '@angular/common/http';
 import { HttpService } from './http.service';
+import { AnyNsRecord } from 'node:dns';
 
 @Injectable({
   providedIn: 'root'
@@ -113,18 +114,18 @@ export class ProductsService {
 
   //down Products
 
-  downs()
+  downs(query:any)
   {
-    return this.httpService.ejectQuery('getDowns');
+    return this.httpService.ejectQuery('getDowns', query);
   }
   downProduct(query:any)
   {
     return this.httpService.ejectPost('downProduct', query);
   }
 
-  ups()
+  ups(query: any)
   {
-    return this.httpService.ejectQuery('getUps');
+    return this.httpService.ejectPost('getUps', query);
   }
   upProduct(query:any)
   {

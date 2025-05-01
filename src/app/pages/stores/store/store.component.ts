@@ -99,6 +99,7 @@ export class StoreComponent implements OnInit{
 
   ngOnInit(): void {
     this.id_store = this.route.snapshot.paramMap.get('id');
+    localStorage.setItem('id_store', this.id_store);
 
     this.storeService.getStore({id: this.id_store})
     .subscribe((res:any) => {

@@ -19,7 +19,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './down-products.component.scss'
 })
 export class DownProductsComponent  implements OnInit{
-  displayedColumns: string[] = ['code', 'quantity', 'date'];
+  displayedColumns: string[] = ['ingredient', 'quantity', 'date'];
   dataSource: MatTableDataSource<any>;
 
   downs: any = [];
@@ -35,12 +35,13 @@ export class DownProductsComponent  implements OnInit{
     
   }
   ngOnInit() {
-    this.service.downs().subscribe((res:any) => {
+    const data = {id_store: localStorage.getItem('id_store')}
+    this.service.downs(data).subscribe((res:any) => {
       console.log(res);
       
       res.map((key: any) => {
         
-        this.downs.push({code: key.id_product, quantity: key.quantity, date: key.created_at})
+        this.downs.push({ingredient: key.ingredient, quantity: key.quantity, date: key.created_at})
       })
 
       this.dataSource = new MatTableDataSource(this.downs);
@@ -64,6 +65,11 @@ export class DownProductsComponent  implements OnInit{
   {
 
   
+  }
+
+  back()
+  {
+    window.history.back()
   }
 
 }

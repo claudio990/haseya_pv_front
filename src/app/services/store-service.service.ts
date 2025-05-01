@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment.development';
 import { HttpService } from './http.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -51,5 +52,16 @@ export class StoreServiceService {
   deleteCoupon(query:any)
   {
     return this.httpService.ejectPost('deleteCoupon', query);
+  }
+
+
+  //DashBoard
+
+  getDashboardData(id_store?: number, period: 'day' | 'week' | 'month' = 'month'): Observable<any> {
+    const params: any = { period };
+    if (id_store !== undefined) {
+      params.id_store = id_store;
+    }
+    return this.httpService.ejectQuery('dashboard', params);
   }
 }

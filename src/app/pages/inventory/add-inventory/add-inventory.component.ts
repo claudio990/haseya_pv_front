@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { FormBuilder, Validators, ReactiveFormsModule, FormGroup  } from '@angular/forms';
+import { FormBuilder, Validators, ReactiveFormsModule, FormGroup, FormsModule  } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef  } from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
 import { Router, RouterModule } from '@angular/router';
@@ -8,66 +8,45 @@ import { InventoryService } from '../../../services/inventory.service';
 @Component({
   selector: 'app-add-inventory',
   standalone: true,
-  imports: [ReactiveFormsModule, MatButtonModule, RouterModule],
+  imports: [ReactiveFormsModule, MatButtonModule, RouterModule, FormsModule],
   templateUrl: './add-inventory.component.html',
   styleUrl: './add-inventory.component.scss'
 })
 export class AddInventoryComponent {
 
-  addForm = this.formBuilder.group({
-    quantity: ['0', Validators.required],
-    name: ['', Validators.required]
-  })
+  inventoryName: string = '';
+
   constructor(
-    @Inject(MAT_DIALOG_DATA ) public data: any, 
-    private router: Router, 
-    private dialogRef: MatDialogRef<AddInventoryComponent>,
-    private formBuilder: FormBuilder,
+    public dialogRef: MatDialogRef<AddInventoryComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
     private inventoryService: InventoryService
-  ){}
+  ) {}
 
-  selection(quantity: any)
-  {
-    const name = this.addForm.value.name;
-    if(name == '')
-    {
-      alert('Ingresa el nombre para el inventario');
-    }
-    else{
-      this.inventoryService.addInventory({'quantity': quantity, 'name': name})
-      .subscribe((res:any) => {
-        if(res.status == "success")
-        {
-          this.dialogRef.close()
-          this.router.navigate(['/main/see-inventory', res.id])
-        }
-        
-      })
-
-    }
+  cerrar(): void {
+    this.dialogRef.close();
   }
 
-  persona()
-  {
-    const value = this.addForm.value.quantity;
-    const name = this.addForm.value.name;
+  iniciarInventario(): void {
+    if (!this.inventoryName.trim()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Nombre requerido',
+        text: 'Por favor, ingresa un nombre para el inventario.',
+        confirmButtonColor: '#4f46e5',
+      });
+      return;
+    }
 
-    if(value == '0' || this.addForm.value.name == '')
-    {
-      alert('Ingresa un número o nombre válido para iniciar el inventario');
-    }
-    else
-    {
-      this.inventoryService.addInventory({'quantity': value, 'name': name})
-      .subscribe((res:any) => {
-        if(res.status == "success")
-        {
-          this.dialogRef.close()
-          this.router.navigate(['/main/see-inventory', res.id])
-        }
-        
-      })
-    }
+    // Aquí iría la lógica real para guardar el inventario
+    const data = {name: this.inventoryName, id_store: localStorage.getItem('id_store')};
+
+    this.inventoryService.addInventory(data)
+    .subscribe((res: any) => {
+      
+      
+    })
     
+    // Puedes pasar el nombre de regreso si lo necesitas
+    this.dialogRef.close({ name: this.inventoryName });
   }
 }

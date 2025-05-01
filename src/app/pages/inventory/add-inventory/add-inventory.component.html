@@ -1,31 +1,20 @@
-<div class="main">
-    <p class="title">Decide el número de productos para el inventario</p>
-    <form action="" [formGroup]="addForm">
-        <p style="margin-left: 30px;">Nombre del Inventario: </p>
-        <input type="text" style="margin-left: 30px;" formControlName="name">
-    </form>
-    <!-- <div class="elections">
-        <div class="election" (click)="selection(10)">
-            <p class="number">10</p>
-            <p class="text_number">Iniciar inventario</p>
-        </div>
-        <div class="election" (click)="selection(15)">
-            <p class="number">15</p>
-            <p class="text_number">Iniciar inventario</p>
-        </div>
-    </div> -->
-    <div class="elections">
-        <!-- <div class="election" >
-            <form action="" [formGroup]="addForm">
-                <p class="text_number">Ingresa la cantidad personalizada</p>
-                <input type="text" formControlName="quantity">
-                <button (click)="persona()" class="btn_send"> Iniciar </button>
-
-            </form>
-        </div> -->
-        <div class="election" (click)="selection(0)">
-            <p class="number">INICIAR</p>
-            <!-- <p class="text_number">Iniciar inventario</p> -->
-        </div>
+<div class="modal-container">
+    <h2>Nuevo Inventario</h2>
+  
+    <div class="form-group">
+      <label for="inventoryName">Nombre del Inventario</label>
+      <input
+        id="inventoryName"
+        type="text"
+        [(ngModel)]="inventoryName"
+        placeholder="Ej. Inventario de Mayo"
+        class="input"
+      />
     </div>
-</div>
+  
+    <div class="actions">
+      <button class="btn-cancel" (click)="cerrar()">Cancelar</button>
+      <button class="btn-start" (click)="iniciarInventario()">Iniciar Inventario</button>
+    </div>
+  </div>
+  

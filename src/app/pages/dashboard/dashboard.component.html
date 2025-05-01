@@ -3,8 +3,8 @@
       <h1>Dashboard de Finanzas</h1>
       <div class="actions">
         <select [(ngModel)]="periodoSeleccionado" (change)="filtrarDatos()" class="select">
-          <option value="month">Mes</option>
-          <option value="week">Semana</option>
+          <option value="Mes">Mes</option>
+          <option value="Semana">Semana</option>
         </select>
   
         <select [(ngModel)]="tiendaSeleccionada" (change)="filtrarDatos()" class="select">
@@ -14,24 +14,24 @@
   
         <button class="btn-export btn-print" (click)="exportarPDF()">Exportar PDF</button>
       </div>
-  </div>
+    </div>
   
-  <section class="summary-cards">
+    <section class="summary-cards">
       <div class="card">
-        <h3>Ventas del {{ periodoSeleccionado | titlecase }}</h3>
-        <p>{{ periodoSeleccionado === 'month' ? resumenVentas?.ventasMes : resumenVentas?.ventasSemana | currency }}</p>
+        <h3>Ventas del {{ periodoSeleccionado }}</h3>
+        <p>{{ periodoSeleccionado === 'Mes' ? resumenVentas.ventasMes : resumenVentas.ventasSemana | currency }}</p>
       </div>
-  </section>
+    </section>
 
   <section class="summary-cards">
-      <div class="card">
-        <h3>Ventas del Mes</h3>
-        <p>{{ resumenVentas?.ventasMes }}</p>
-      </div>
-      <div class="card">
-        <h3>Ventas de la Semana</h3>
-        <p>{{ resumenVentas?.ventasSemana }}</p>
-      </div>
+    <div class="card">
+      <h3>Ventas del Mes</h3>
+      <p>{{ resumenVentas.ventasMes  }}</p>
+    </div>
+    <div class="card">
+      <h3>Ventas de la Semana</h3>
+      <p>{{ resumenVentas.ventasSemana  }}</p>
+    </div>
   </section>
 
   <section class="chart-section">
@@ -62,7 +62,7 @@
       <tbody>
         <tr *ngFor="let restaurante of restaurantesFiltrados">
           <td>{{ restaurante.nombre }}</td>
-          <td>{{ restaurante.ventas }}</td>
+          <td>{{ restaurante.ventas  }}</td>
           <td>{{ restaurante.tickets }}</td>
         </tr>
       </tbody>

@@ -142,6 +142,8 @@ export class StoreComponent implements OnInit{
   {
     this.ticketService.getAllTickets({id_store: this.id_store}).
     subscribe((res:any) => {
+      console.log(res);
+      
       res.reverse();
       this.tickets = res;
       this.dataSourceTickets = new MatTableDataSource(this.tickets);
@@ -672,7 +674,7 @@ export class StoreComponent implements OnInit{
           data: { id: 2},
         });
         dialog.afterClosed().subscribe(() => {
-          
+          this.getInventories();
           
         });
   }
@@ -760,6 +762,12 @@ export class StoreComponent implements OnInit{
     });
   }
   
+  deleteInventory(id: any)
+  {
+    // this.inventoryService.delete({id: id})
+    // .subscribe((res: any) => {})
+  }
+
   delete(id:any)
   {
 

@@ -98,7 +98,6 @@ export class StoreComponent implements OnInit{
   ){}
 
   ngOnInit(): void {
-    this.isLoading = true; // activa loading
     this.id_store = this.route.snapshot.paramMap.get('id');
 
     this.storeService.getStore({id: this.id_store})
@@ -116,12 +115,12 @@ export class StoreComponent implements OnInit{
     this.categoryService.getCategories()
     .subscribe((res: any) => {
       this.categories = res;
+      // this.isLoading = false; // activa loading
       
     })
 
 
-    this.isLoading = false; // activa loading
-
+    // this.isLoading = false;
   
   }
 
@@ -130,7 +129,6 @@ export class StoreComponent implements OnInit{
     this.storeService.getCoupons({id_store: this.id_store})
     .subscribe((res: any) => {
       res.reverse();
-      console.log(res);
       
       this.coupons = res;
       this.dataSourceCoupons = new MatTableDataSource(this.coupons);
@@ -321,6 +319,7 @@ export class StoreComponent implements OnInit{
         this.productService.addProduct(this.formData)
           .subscribe(
             (res: any) => {
+              console.log(this.formData)
               Swal.fire('¡Producto añadido!', 'El producto se ha subido exitosamente.', 'success');
               this.getProducts();
             },
@@ -385,11 +384,10 @@ export class StoreComponent implements OnInit{
     }).then((result) => {
       if (result.isConfirmed && result.value) {
 
-        console.log(this.formData);
-        
         this.storeService.addCoupon(this.formData)
           .subscribe(
             (res: any) => {
+
               Swal.fire('Cupón añadido!', 'El cupón se ha subido exitosamente.', 'success');
               this.getCoupons();
             },
@@ -456,6 +454,53 @@ export class StoreComponent implements OnInit{
       });
   }
 
+  editIngredient(ingredient: any) {
+    const formData = new FormData();
+  
+    Swal.fire({
+      title: "Editar Ingrediente",
+      html: `
+        <label for="name">Nombre</label>
+        <input id="name" class="swal2-input" value="${ingredient.name}" placeholder="Nombre del Ingrediente">
+      
+        `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: "Guardar Cambios",
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        const nameInput = document.getElementById('name') as HTMLInputElement;
+  
+        const name = nameInput?.value.trim();
+  
+        if (!name) {
+          Swal.showValidationMessage('Por favor llena todos los campos.');
+          return false;
+        }
+  
+        formData.append('name', name);
+        formData.append('id_store', this.id_store);
+        formData.append('id', ingredient.id); // ← importante para saber cuál editar
+  
+        return formData;
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        this.productService.editIngredient(formData)
+          .subscribe(
+            (res: any) => {
+              Swal.fire('¡Ingrediente actualizado!', 'Los cambios se han guardado exitosamente.', 'success');
+              this.getIngredients();
+            },
+            (err: any) => {
+              Swal.fire('Error', 'Hubo un problema al actualizar el ingrediente.', 'error');
+            }
+          );
+      }
+    });
+  }
+  
 
   addEmployee()
   {
@@ -463,7 +508,8 @@ export class StoreComponent implements OnInit{
 
     const employeeTypes = [
       { id: 'waiter', name: 'Mesero' },
-      { id: 'manager', name: 'Gerente' }
+      { id: 'manager', name: 'Gerente' },
+      { id: 'kitchen', name: 'Cocina' }
     ];
 
     const employeeOptions = employeeTypes
@@ -541,6 +587,83 @@ export class StoreComponent implements OnInit{
     });
 
   }
+
+  editProduct(product: any) {
+    const categoryOptions = this.categories
+      .map((category: any) => {
+        const selected = category.id === product.id_category ? 'selected' : '';
+        return `<option value="${category.id}" ${selected}>${category.name}</option>`;
+      })
+      .join('');
+  
+    Swal.fire({
+      title: "Editar Producto",
+      html: `
+        <label for="name">Nombre</label>
+        <input id="name" class="swal2-input" value="${product.name}" placeholder="Nombre del Producto">
+        
+        <label for="cost">Costo</label>
+        <input id="cost" type="number" class="swal2-input" value="${product.cost}" placeholder="Ingresa el costo">
+  
+        <label for="category">Categoría</label>
+        <select id="category" class="swal2-select">
+          <option value="" disabled>Selecciona una categoría</option>
+          ${categoryOptions}
+        </select>
+  
+        <label for="file">Imagen (opcional)</label>
+        <input id="file" type="file" class="swal2-file">
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: "Guardar Cambios",
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        const nameInput = document.getElementById('name') as HTMLInputElement;
+        const costInput = document.getElementById('cost') as HTMLInputElement;
+        const categorySelect = document.getElementById('category') as HTMLSelectElement;
+        const fileInput = document.getElementById('file') as HTMLInputElement;
+  
+        const name = nameInput.value.trim();
+        const cost = costInput.value.trim();
+        const category = categorySelect.value;
+        const file = fileInput.files?.[0];
+  
+        if (!name || !cost || !category) {
+          Swal.showValidationMessage('Por favor llena todos los campos obligatorios.');
+          return false;
+        }
+  
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('cost', cost);
+        formData.append('id_category', category);
+        formData.append('id_store', this.id_store);
+        formData.append('code', product.code);
+        if (file) {
+          formData.append('image', file); // debe coincidir con 'image' que espera tu back
+        }
+  
+        return formData;
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        const formData = result.value as FormData; // Recuperamos el formData que generamos
+        this.productService.editProduct(formData)
+          .subscribe(
+            (res: any) => {
+              Swal.fire('¡Producto actualizado!', 'Los cambios se han guardado exitosamente.', 'success');
+              this.getProducts();
+            },
+            (err: any) => {
+              Swal.fire('Error', 'Hubo un problema al actualizar el producto.', 'error');
+            }
+          );
+      }
+    });
+  }
+  
 
   startInventory()
   {
@@ -655,6 +778,31 @@ export class StoreComponent implements OnInit{
     });
   }
 
+  deleteProduct(code: any)
+  {
+
+    Swal.fire({
+      title: "Estas Seguro de eliminar el producto?",
+      text: "No podrás revertir la acción!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Si, Eliminar!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.productService.deleteProduct({code: code})
+        .subscribe((res: any) => {
+          Swal.fire('Producto Eliminado')
+          .then(() => {
+            
+            this.getProducts()
+          })
+        })
+        
+      }
+    });
+  }
   deleteCoupon(id: any)
   {
     Swal.fire({
@@ -678,6 +826,30 @@ export class StoreComponent implements OnInit{
       }
     });
    
+  }
+
+  deleteEmployee(id: any)
+  {
+    Swal.fire({
+      title: "Estas Seguro de eliminar el usuario?",
+      text: "No podrás revertir la acción!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Si, Eliminar!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.userService.deleteEmployee({id: id})
+        .subscribe((res: any) => {
+          Swal.fire('Usuario Eliminado Eliminado')
+          .then(() => {
+            this.getEmployees()
+          })
+        })
+        
+      }
+    });
   }
 
   upIngredient(id:any, ingredient: any)
@@ -715,8 +887,11 @@ export class StoreComponent implements OnInit{
       allowOutsideClick: () => !Swal.isLoading()
     }).then((result) => {
       if (result.isConfirmed && result.value) {
-        console.log('Cantidad ingresada:', result.value.quantity);
-        Swal.fire('¡Cantidad añadida!', `Has añadido: ${result.value.quantity}`, 'success');
+        Swal.fire('¡Cantidad añadida!', `Has añadido: ${result.value.quantity}`, 'success')
+        .then(() => {
+          this.getIngredients();
+
+        })
       }
     });
      
@@ -749,7 +924,6 @@ export class StoreComponent implements OnInit{
         }
         this.productService.downProduct(data)
         .subscribe(() => {
-          this.getIngredients();
         })
     
         return { quantity };
@@ -757,8 +931,11 @@ export class StoreComponent implements OnInit{
       allowOutsideClick: () => !Swal.isLoading()
     }).then((result) => {
       if (result.isConfirmed && result.value) {
-        console.log('Cantidad ingresada:', result.value.quantity);
-        Swal.fire('¡Cantidad añadida!', `Has añadido: ${result.value.quantity}`, 'success');
+        Swal.fire('¡Cantidad dada de baja!', `Has dado de baja: ${result.value.quantity}`, 'success')
+        .then(() =>{
+          
+          this.getIngredients();
+        })
       }
     });
     

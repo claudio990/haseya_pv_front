@@ -37,4 +37,9 @@ export class UserService {
     return this.httpService.ejectQuery('getEmployeesStore', query);
   }
 
+  deleteEmployee(query: any)
+  {
+    return this.httpService.ejectPost('deleteEmployee', query);
+  }
+
 }

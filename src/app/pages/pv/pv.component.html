@@ -41,7 +41,18 @@
         <input type="number" min="1" [(ngModel)]="peopleCount" />
       </div>
 
-      <button (click)="addTicket(clientName, peopleCount)">Abrir</button>
+      <div class="checkbox-wrapper-46">
+        <input type="checkbox" id="cbx-46" class="inp-cbx" [(ngModel)]="toGo"  />
+        <label for="cbx-46" class="cbx"
+          ><span>
+            <svg viewBox="0 0 12 10" height="10px" width="12px">
+              <polyline points="1.5 6 4.5 9 10.5 1"></polyline></svg></span
+          ><span>Para llevar?</span>
+        </label>
+      </div>
+      
+
+      <button (click)="addTicket(clientName, peopleCount, toGo)">Abrir</button>
     </div>
   </div>
 
@@ -126,7 +137,15 @@
       <div *ngIf="paymentMethod === 'efectivo'">
         <label>Pago con:</label>
         <input type="number" [(ngModel)]="amountReceived">
+        
         <p *ngIf="amountReceived">Cambio: ${{ amountReceived - total >= 0 ? (amountReceived - total) : 0 }}</p>
+      </div>
+
+      <div class="discount">
+        <label>Código de Descuento:</label>
+        <input type="text" (change)="discountVerify($event)">
+        <label for="" *ngIf="bandDiscount === 1" style="color: green; font-weight: bold;">DESCUENTO APLICADO</label>
+        <label for="" *ngIf="bandDiscount === 2" style="color: red; font-weight: bold;">DESCUENTO NO ENCONTRADO O AGOTADO</label>
       </div>
 
       <button class="send-btn" (click)="payTicket()">Confirmar pago</button>

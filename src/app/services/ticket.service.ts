@@ -52,6 +52,12 @@ export class TicketService {
     return this.httpService.ejectPost('addAbono', query);
   }
 
+  //COUPONS
+  getCoupons(query: any)
+  {
+    return this.httpService.ejectQuery('getCoupons', query);
+  }
+
 
   //Start box 
 

@@ -68,6 +68,7 @@ export class PvComponent {
   isOpenTicket : any = false;
   client: any = 'Venta General';
   peopleCount: number = 1;
+  toGo: any = false;
   clientName: string = '';
   categories: any = [
   ];
@@ -81,6 +82,9 @@ export class PvComponent {
   paymentMethod: string = 'efectivo';
   amountReceived: number = 0;
   showPaymentForm: boolean = false;
+  coupons: any = [];
+  bandDiscount: number = 0;
+
   // total: number = 0;
   constructor(private fb: FormBuilder, 
               private productService: ProductsService, 
@@ -129,16 +133,10 @@ export class PvComponent {
     .subscribe((res:any) =>{
       this.isOpenBox = res.isOpen == 1 ? true : false;
       this.idBox = this.isOpenBox ? res.id_box : ''
-      this.ticketService.getTicketsBox({id_box: this.idBox})
-      .subscribe({
-        next: (data) => {
-          this.tickets = data;
-          
-        }, 
-        error:(e) => {
-  
-        }
-      })
+      this.getTables();
+      this.getCoupons();
+
+      
 
       this.productService.getProductsBox({id_store: localStorage.getItem('id_store')})
       .subscribe({
@@ -158,6 +156,32 @@ export class PvComponent {
     
   }
 
+  getCoupons()
+  {
+    this.ticketService.getCoupons({id_store: localStorage.getItem('id_store')})
+    .subscribe((res: any) => {
+      this.coupons = res;
+      console.log(res);
+      
+    })
+  }
+
+  getTables()
+  {
+    this.ticketService.getTicketsBox({id_box: this.idBox})
+    .subscribe({
+      next: (data) => {
+        this.tickets = data;
+        
+      }, 
+      error:(e) => {
+
+      }
+    })
+  }
+
+  
+
   onSubmit()
   {
     const data = {moneyStarted: this.formStartBox.value.moneyStarted, id_store: localStorage.getItem('id_store')}
@@ -172,14 +196,15 @@ export class PvComponent {
     })
   }
 
-  addTicket(name: string, count: number) {
+  addTicket(name: string, count: number, toGo: any) {
     this.isLoading = true; // activa loading
-  
+    
     const data = {
       name: name,
       quantity: count,
       id_user: localStorage.getItem('id_user'),
-      id_box: this.idBox
+      id_box: this.idBox,
+      toGo: toGo ? 1 : 0
     };
   
     this.ticketService.addTicket(data).subscribe({
@@ -225,6 +250,7 @@ export class PvComponent {
     this.ticketActual = {};
     this.isOpenTicket = false;
     this.pendingItems = [];
+    this.getTables();
   }
 
   
@@ -238,6 +264,28 @@ export class PvComponent {
     const totalPending = this.pendingItems.reduce((acc, item) => acc + item.cost * item.quantity, 0);
 
     return totalSent + totalPending;
+  }
+
+  discountVerify(event: any)
+  {
+    const discount = event.target.value;
+    
+    const band = this.coupons.find((coupon: any) => coupon.name === discount)
+    if(discount === '')
+    {
+      
+      this.bandDiscount = 0;
+    }  
+    else if(band != undefined )
+    {
+      
+      this.bandDiscount = band.quantity > 0 ? 1 : 2;
+    }
+    else
+    {
+      this.bandDiscount = 2;
+    }
+
   }
   
   

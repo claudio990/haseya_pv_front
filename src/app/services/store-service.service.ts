@@ -28,11 +28,11 @@ export class StoreServiceService {
   }
   addStore(query:any)
   {
-    return this.httpService.ejectPost('addStore', query);
+    return this.httpService.ejectPost('addStore', query, this.options);
   }
   editStore(query:any)
   {
-    return this.httpService.ejectPost('editStore', query);
+    return this.httpService.ejectPost('editStore', query, this.options);
   }
   deleteStore(query:any)
   {

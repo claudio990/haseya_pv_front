@@ -63,24 +63,83 @@ export class StoresComponent implements OnInit{
 
 
   addStore() {
-
     Swal.fire({
       title: 'Añadir Tienda',
-      input: 'text',
-      inputPlaceholder: 'Ingrese el nombre de la tienda',
+      html: `
+        <input type="text" id="storeName" class="swal2-input" placeholder="Nombre de la tienda">
+        <input type="file" id="storeImage" class="swal2-file">
+      `,
       showCancelButton: true,
       confirmButtonText: 'Agregar',
       cancelButtonText: 'Cancelar',
+      focusConfirm: false,
+      preConfirm: () => {
+        const name = (document.getElementById('storeName') as HTMLInputElement).value;
+        const imageFile = (document.getElementById('storeImage') as HTMLInputElement).files?.[0];
+  
+        if (!name) {
+          Swal.showValidationMessage('Debe ingresar el nombre de la tienda');
+          return;
+        }
+  
+        const formData = new FormData();
+        formData.append('name', name);
+        if (imageFile) {
+          formData.append('image', imageFile);
+        }
+  
+        return formData;
+      }
     }).then((result) => {
       if (result.isConfirmed && result.value) {
-        this.service.addStore({ name: result.value })
-        .subscribe((res:any) => {
-          this.getStores()
-        })
-        Swal.fire('Éxito', 'Tienda añadida correctamente', 'success');
+        this.service.addStore(result.value).subscribe((res: any) => {
+          this.getStores();
+          Swal.fire('Éxito', 'Tienda añadida correctamente', 'success');
+        });
       }
     });
   }
+
+  editStore(store: any) {
+    Swal.fire({
+      title: 'Editar Tienda',
+      html: `
+        <input type="text" id="storeName" class="swal2-input" placeholder="Nombre de la tienda" value="${store.name}">
+        <input type="file" id="storeImage" class="swal2-file">
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Guardar Cambios',
+      cancelButtonText: 'Cancelar',
+      focusConfirm: false,
+      preConfirm: () => {
+        const name = (document.getElementById('storeName') as HTMLInputElement).value;
+        const imageFile = (document.getElementById('storeImage') as HTMLInputElement).files?.[0];
+  
+        if (!name) {
+          Swal.showValidationMessage('Debe ingresar un nombre');
+          return;
+        }
+  
+        const formData = new FormData();
+        formData.append('id', store.id); // si es necesario en tu backend
+        formData.append('name', name);
+        if (imageFile) {
+          formData.append('image', imageFile);
+        }
+  
+        return formData;
+      }
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        this.service.editStore(result.value).subscribe((res: any) => {
+          this.getStores();
+          Swal.fire('Actualizado', 'Tienda actualizada correctamente', 'success');
+        });
+      }
+    });
+  }
+  
+  
 
   applyFilter(event: Event) {
       const filterValue = (event.target as HTMLInputElement).value;

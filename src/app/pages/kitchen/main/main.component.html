@@ -2,7 +2,8 @@
   <h1>Comandas</h1>
 
   <div *ngIf="orders.length > 0; else noOrders" class="orders-list">
-    <div *ngFor="let order of orders" [ngClass]="{'order-card': true, 'new-order': order.new}">
+    <div *ngFor="let order of orders" [ngClass]="{'order-card': true, 'new-order': isNewOrder(order)}">
+
       <div class="order-header">
         <h2>Comanda #{{ order.id }}</h2>
         <h2 style="color: rgb(48, 48, 128);">{{ order.ticketName }}</h2>

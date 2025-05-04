@@ -25,7 +25,6 @@ export class MainComponent implements OnInit, OnDestroy {
     this.appRef.isStable
       .pipe(takeWhile(isStable => !isStable, true)) // Espera hasta que sea estable
       .subscribe(() => {
-        console.log('App estable, iniciando setInterval');
         this.intervalId = setInterval(() => {
           this.loadCommands();
         }, 5000);
@@ -40,22 +39,40 @@ export class MainComponent implements OnInit, OnDestroy {
 
   loadCommands() {
     const id_store = localStorage.getItem('id_store');
-    const timestamp = new Date().getTime(); // 👈 Para forzar petición nueva
+    const timestamp = new Date().getTime();
   
-    this.service.getCommands({ id_store, t: timestamp })
-      .subscribe((res: any) => {
-        console.log(res)
-        const oldIds = this.orders.map(o => o.id);
-        this.orders = res.map((order: any) => ({
+    this.service.getCommands({ id_store, t: timestamp }).subscribe((res: any) => {
+      const oldIds = this.orders.map(o => o.id);
+      const now = Date.now();
+  
+      const newOrders = res.filter((order: any) => !oldIds.includes(order.id));
+      const hasNew = newOrders.length > 0;
+  
+      this.orders = res.map((order: any) => {
+        const isNew = !oldIds.includes(order.id);
+        return {
           ...order,
-          new: !oldIds.includes(order.id)
-        }));
-  
-        setTimeout(() => {
-          this.orders.forEach(order => order.new = false);
-        }, 3000);
+          createdAt: isNew ? now : this.orders.find(o => o.id === order.id)?.createdAt || now
+        };
       });
+  
+      if (hasNew) {
+        this.playNotificationSound();
+      }
+    });
   }
+  
+  isNewOrder(order: any): boolean {
+    return Date.now() - order.createdAt < 15000; // 15s
+  }
+  
+
+playNotificationSound() {
+  const audio = new Audio('assets/sounds/notification.mp3');
+  audio.play().catch(err => {
+    console.warn('Error reproduciendo sonido:', err);
+  });
+}
   
   
 

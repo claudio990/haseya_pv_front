@@ -36,8 +36,20 @@ export class EmployeesComponent implements OnInit{
   ngOnInit() {
     this.service.getEmployees().subscribe((res:any) => {
       res.map((key: any) => {
-
-        const type = key.type == 'waiter' ? 'Mesero' : 'Gerente'
+        let type;
+        
+          if(key.type == 'manager')
+          {
+            type = 'Colaborador 1'
+          }
+          else if(key.type == 'waiter')
+          {
+            type = 'Colaborador 2'
+          }
+          else
+          {
+            type = 'Colaborador 3'
+          }
         this.users.push(
           {
             id: key.id, 

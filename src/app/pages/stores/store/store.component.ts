@@ -18,6 +18,7 @@ import { InventoryService } from '../../../services/inventory.service';
 import { AddInventoryComponent } from '../../inventory/add-inventory/add-inventory.component';
 import { MatDialog } from '@angular/material/dialog';
 
+
 @Component({
   selector: 'app-store',
   standalone: true,
@@ -50,12 +51,12 @@ export class StoreComponent implements OnInit{
   ingredientsProduct:any =[];
   employees:any = [];
   inventories: any = [];
-  isLoading: boolean = false;
+  isLoading: boolean = true;
   coupons: any = [];
 
 
   //table for tickets
-  displayedColumnsTickets: string[] = ['employee', 'total','method','options'];
+  displayedColumnsTickets: string[] = ['employee', 'total','method','start', 'end','options'];
   dataSourceTickets: MatTableDataSource<any>;
   @ViewChild('ticketsPaginator') ticketsPaginator: MatPaginator;
 
@@ -182,6 +183,20 @@ export class StoreComponent implements OnInit{
   {
     this.userService.getEmployeeStore({id_store: this.id_store})
     .subscribe((res:any) => {
+      res.map((empl: any) => {
+        if(empl.type == 'manager')
+        {
+          empl.type = 'Colaborador 1'
+        }
+        else if(empl.type == 'waiter')
+        {
+          empl.type = 'Colaborador 2'
+        }
+        else
+        {
+          empl.type = 'Colaborador 3'
+        }
+      })
       this.employees = res;
       
       this.dataSourceEmployees = new MatTableDataSource(this.employees);
@@ -510,9 +525,9 @@ export class StoreComponent implements OnInit{
     this.formData = new FormData();
 
     const employeeTypes = [
-      { id: 'waiter', name: 'Mesero' },
-      { id: 'manager', name: 'Gerente' },
-      { id: 'kitchen', name: 'Cocina' }
+      { id: 'manager', name: 'Colaborador 1' },
+      { id: 'waiter', name: 'Colaborador 2' },
+      { id: 'kitchen', name: 'Colaborador 3' }
     ];
 
     const employeeOptions = employeeTypes

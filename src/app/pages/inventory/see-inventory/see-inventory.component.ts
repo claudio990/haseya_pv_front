@@ -60,7 +60,6 @@ export class SeeInventoryComponent implements OnInit{
       this.dataSource2.sort = this.sort;
 
       res.products.map((key: any) =>{
-        console.log('heloo : ' + Math.sign(key.difference));
         
         if(Math.sign(key.difference) == 1)
         {
@@ -91,15 +90,19 @@ export class SeeInventoryComponent implements OnInit{
     const ingresed = event.target.value;
 
     var difference = inventory - ingresed;
-    var obj = {'id_inventory': this.id, 'id_product': id_product, 'ingresed': ingresed, 'difference': difference};
+    var obj = {'id_inventory': this.id, 'id_ingredient': id_product, 'ingresed': ingresed, 'difference': difference};
 
     
     this.serviceInventory.updateInventory(obj)
     .subscribe((res:any) =>{
-      console.log(res);
       
     })
     
+  }
+
+  back()
+  {
+    window.history.back();
   }
 
   finish()

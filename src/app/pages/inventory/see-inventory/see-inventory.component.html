@@ -13,8 +13,9 @@
         </div>
 
     </div>
-    <div class="head_main">
-        <button *ngIf="inventory.is_finished == 0" mat-raised-button (click)="finish()" >Terminar Inventario</button>
+    <div class="head_main">   
+        <button class="back" mat-raised-button (click)="back()" >Regresar</button>
+        <button class="finish" *ngIf="inventory.is_finished == 0" mat-raised-button (click)="finish()" >Terminar Inventario</button>
     </div>
     <div class="nofinished" *ngIf="inventory.is_finished == 0">
         <div class="table_main">
@@ -42,7 +43,7 @@
                 <!-- Quantity Column -->
                 <ng-container matColumnDef="quantity">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Ingresa Cantidad </th>
-                    <td mat-cell *matCellDef="let row"> <input type="text" value="{{row.products_ingresed}}" (change)="updateQuantity($event, row.id_product, row.products_inventory)"> </td>
+                    <td mat-cell *matCellDef="let row"> <input type="text" value="{{row.products_ingresed}}" (change)="updateQuantity($event, row.id_ingredient, row.products_inventory)"> </td>
                 </ng-container>
              
             

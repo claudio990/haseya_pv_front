@@ -28,24 +28,15 @@ export class CloseBoxComponent implements OnInit{
     private router: Router, 
     private dialogRef: MatDialogRef<CloseBoxComponent>,
     private formBuilder: FormBuilder,
-    private ticketService: TicketService,
     private boxService: BoxesService
   ){}
 
   ngOnInit() {
-    this.boxService.getBox({id: this.data.id})
-    .subscribe((res:any) => {
-      this.box = res;
-      console.log(res);
-      
-    })
   }
   onSubmit()
   {
-    var difference = this.box.money_started - this.addForm.value.money_ingresed!;
     const dataBox = {
                       'ingresed' : this.addForm.value.money_ingresed, 
-                      'difference' : difference,
                       'id' : this.data.id
                     };
     

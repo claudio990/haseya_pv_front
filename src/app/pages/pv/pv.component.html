@@ -2,7 +2,7 @@
   <p class="text">Comenzar turno</p>
   <form class="form" [formGroup]="formStartBox">
     <label>Ingresar monto en caja:</label>
-    <input type="text" placeholder="Nombre" class="input_form" formControlName="moneyStarted">
+    <input type="text" placeholder="Monto inicial" class="input_form" formControlName="moneyStarted">
     <button class="btn" (click)="onSubmit()">Iniciar Turno</button>
   </form>
 </div>
@@ -55,6 +55,91 @@
       <button (click)="addTicket(clientName, peopleCount, toGo)">Abrir</button>
     </div>
   </div>
+  <!-- Mesas abiertas -->
+   <mat-tab-group *ngIf="!isOpenTicket">
+     <mat-tab label="Ventas del día" > 
+               
+       <div class="main">
+   
+           <div class="head_main">
+               <h3>Ventas del día</h3>
+               
+           </div>
+         
+           <div class="table_main">
+               <mat-form-field>
+               <mat-label>Filter</mat-label>
+               <input matInput (keyup)="applyFilterTickets($event)" placeholder="Ex. Mia" #input>
+               </mat-form-field>
+               
+               <div class="mat-elevation-z8">
+               <table mat-table [dataSource]="dataSourceTickets" matSort>
+                   <!-- Name Column -->
+                   <ng-container matColumnDef="employee">
+                       <th mat-header-cell *matHeaderCellDef mat-sort-header> Empleado </th>
+                       <td mat-cell *matCellDef="let row"> {{row.employee}} </td>
+                   </ng-container>
+   
+                   <ng-container matColumnDef="total">
+                       <th mat-header-cell *matHeaderCellDef mat-sort-header> Total </th>
+                       <td mat-cell *matCellDef="let row"> {{row.total}} </td>
+                   </ng-container>
+   
+                   <ng-container matColumnDef="method">
+                       <th mat-header-cell *matHeaderCellDef mat-sort-header> Método de Pago </th>
+                       <td mat-cell *matCellDef="let row"> {{row.method !== null ? row.method : 'Ticket Abierto'}} </td>
+                   </ng-container>
+   
+                   
+   
+                   <ng-container matColumnDef="start">
+                       <th mat-header-cell *matHeaderCellDef mat-sort-header> Hora Inicio </th>
+                       <td mat-cell *matCellDef="let row"> {{row.created_at |  date: 'd MMMM, y HH:mm'  }} </td>
+                   </ng-container>
+       
+                   <ng-container matColumnDef="end">
+                       <th mat-header-cell *matHeaderCellDef mat-sort-header> Hora Cerrada </th>
+                       <td mat-cell *matCellDef="let row"> {{row.updated_at |  date: 'HH:mm' }} </td>
+                   </ng-container>
+               
+   
+   
+               
+                
+         
+                    <!-- Fruit Column -->
+                    <ng-container matColumnDef="options">
+                       <th mat-header-cell *matHeaderCellDef mat-sort-header> Opciones </th>
+                       <td mat-cell *matCellDef="let row"> 
+                         <a mat-raised-button [routerLink]="['../see-ticket', row.id]"><i class="bi bi-eye"></i> Ver Ticket</a>
+                          
+                       </td>
+                       </ng-container>
+               
+                   <tr mat-header-row *matHeaderRowDef="displayedColumnsTickets"></tr>
+                   <tr mat-row *matRowDef="let row; columns: displayedColumnsTickets;"></tr>
+               
+                   <!-- Row shown when there is no matching data. -->
+                   <tr class="mat-row" *matNoDataRow>
+                   <td class="mat-cell" colspan="4">No data matching the filter "{{input.value}}"</td>
+                   </tr>
+               </table>
+               
+               <mat-paginator #ticketsPaginator="matPaginator" [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
+               </div>
+         
+           </div>
+           
+             
+         </div> 
+   </mat-tab>
+
+   </mat-tab-group>
+
+
+  
+
+
 
   <!-- Ticket abierto -->
   <div *ngIf="isOpenTicket">
@@ -118,7 +203,7 @@
           <button class="clear-btn" [disabled]="pendingItems.length === 0" (click)="clearPending()">Limpiar no enviados</button>
 
           <!-- Botón para cobrar -->
-          <button class="pay-btn" [disabled]="productsTicket.length === 0" (click)="startPayment()">Cobrar</button>
+          <button class="pay-btn" *ngIf="!bandWaiter" [disabled]="productsTicket.length === 0" (click)="startPayment()">Cobrar</button>
         </div>
       </div>
     </div>
@@ -151,6 +236,8 @@
       <button class="send-btn" (click)="payTicket()">Confirmar pago</button>
       <button class="send-btn" (click)="cancelPayment()">Cancelar</button>
     </div>
+
+
 
   </div>
 </div>

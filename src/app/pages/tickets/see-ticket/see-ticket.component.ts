@@ -24,7 +24,7 @@ import { GeneralService } from '../../../services/general.service';
 })
 export class SeeTicketComponent implements OnInit{
   displayedColumns: string[] = ['amount', 'type','date'];
-  displayedColumnsProducts: string[] = ['code', 'quantity','simple_price', 'total'];
+  displayedColumnsProducts: string[] = ['name', 'quantity','simple_price', 'total'];
   dataSource: MatTableDataSource<any>;
   dataSourceProducts: MatTableDataSource<any>;
   tickets: any = [];
@@ -38,7 +38,7 @@ export class SeeTicketComponent implements OnInit{
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginatorProducts: MatPaginator;
   @ViewChild(MatSort) sortProducts: MatSort;
-  ticket: any;
+  ticket: any = {};
   constructor(private service: TicketService, private route: ActivatedRoute,  public dialog: MatDialog, public generalService: GeneralService) {
   }
   ngOnInit() {
@@ -53,17 +53,13 @@ export class SeeTicketComponent implements OnInit{
     this.id_ticket = this.route.snapshot.paramMap.get('id');
     this.service.getTicket({'id': this.id_ticket}).subscribe((res:any) => {
       this.ticket = res;
-      res.pays.map((key: any) => {
-        this.totalDeuda = res.adeudo;
-        this.tickets.push({amount: key.amount, type: key.tipo, date: key.created_at})
-        
-      })
+      
 
       res.products.map((key:any) =>{
-        this.productsTicket.push({code: key.id_product, quantity: key.quantity, simple: key.simple_price, total: key.total})
+        this.productsTicket.push({name: key.name, quantity: key.quantity, simple: key.simple_price, total: key.total})
       })
 
-      this.dataSource = new MatTableDataSource(this.tickets);
+      this.dataSource = new MatTableDataSource(this.productsTicket);
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
 
@@ -72,13 +68,13 @@ export class SeeTicketComponent implements OnInit{
       this.dataSourceProducts.sort = this.sortProducts;
     })
 
-    setTimeout(() => {
-      this.generalService.getClient({'id': this.ticket.id_client})
-      .subscribe((res:any) =>{
-        this.client = res;
-      })
+    // setTimeout(() => {
+    //   this.generalService.getClient({'id': this.ticket.id_client})
+    //   .subscribe((res:any) =>{
+    //     this.client = res;
+    //   })
       
-    }, 1000);
+    // }, 1000);
 
   }
   
@@ -144,5 +140,10 @@ export class SeeTicketComponent implements OnInit{
       this.printTicket = false;
     }, 1500);
     
+  }
+
+  back()
+  {
+    window.history.back()
   }
 }

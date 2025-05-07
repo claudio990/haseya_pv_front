@@ -1,8 +1,8 @@
 <div class="main">
 
     <div class="head_main">
-        <!-- <button mat-raised-button (click)="pdf()" style="margin-right: 150px;">Imprimir Ticket</button> -->
-        <button mat-raised-button [routerLink]="['../../client']">Regresar</button>
+        <button mat-raised-button (click)="pdf()" style="margin-right: 150px;" *ngIf="ticket.is_open == 1">Imprimir Ticket</button>
+        <button mat-raised-button (click)="back()">Regresar</button>
     </div>
 
     <div class="table_main" >
@@ -16,9 +16,9 @@
         <table mat-table [dataSource]="dataSourceProducts" matSort>
         
            
-            <ng-container matColumnDef="code">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Código Producto </th>
-            <td mat-cell *matCellDef="let row"> {{row.code}} </td>
+            <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Nombre </th>
+            <td mat-cell *matCellDef="let row"> {{row.name}} </td>
             </ng-container>
 
             <ng-container matColumnDef="quantity">

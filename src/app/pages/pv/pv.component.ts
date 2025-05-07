@@ -19,12 +19,16 @@ import { CloseBoxComponent } from './close-box/close-box.component';
 import { MatDialog } from '@angular/material/dialog';
 import { RouterModule } from '@angular/router';
 import { jsPDF } from "jspdf";
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatSort } from '@angular/material/sort';
 
 
 @Component({
   selector: 'app-pv',
   standalone: true,
   imports: [
+    MatTabsModule,
     FormsModule,
     MatFormFieldModule,
     MatCardModule,
@@ -37,6 +41,7 @@ import { jsPDF } from "jspdf";
     MatButtonModule,
     MatGridListModule,
     CommonModule,
+    MatPaginatorModule, 
     RouterModule
   ],
   templateUrl: './pv.component.html',
@@ -77,6 +82,12 @@ export class PvComponent {
   ticket: any[] = [];
   ticketGrouped: any[] = [];
 
+  //table for tickets
+  displayedColumnsTickets: string[] = ['employee', 'total','method','start', 'end','options'];
+  dataSourceTickets: MatTableDataSource<any>;
+  @ViewChild('ticketsPaginator') ticketsPaginator: MatPaginator;
+  
+  @ViewChild(MatSort) sort: MatSort;
   productsTicket: any[] = []; // Ya enviados (precargados desde backend)
   pendingItems: any[] = [];
   paymentMethod: string = 'efectivo';
@@ -84,6 +95,7 @@ export class PvComponent {
   showPaymentForm: boolean = false;
   coupons: any = [];
   bandDiscount: number = 0;
+  id_store: any;
 
   // total: number = 0;
   constructor(private fb: FormBuilder, 
@@ -126,7 +138,7 @@ export class PvComponent {
       day: 'numeric',
     };
     this.today = this.today.toLocaleDateString('es-Mx', options);
-
+    this.id_store = localStorage.getItem('id_store');
     this.id_employee = localStorage.getItem('id_user');
 
     this.ticketService.validationBox({'id_employee': 0})
@@ -134,6 +146,7 @@ export class PvComponent {
       this.isOpenBox = res.isOpen == 1 ? true : false;
       this.idBox = this.isOpenBox ? res.id_box : ''
       this.getTables();
+      this.getSells();
       this.getCoupons();
 
       
@@ -156,23 +169,42 @@ export class PvComponent {
     
   }
 
+  getSells()
+  {
+    this.ticketService.getAllTickets({id_store: this.id_store}).
+    subscribe((res:any) => {
+      
+      res.reverse();
+      this.dataSourceTickets = new MatTableDataSource(res);
+      this.dataSourceTickets.paginator = this.ticketsPaginator;
+      this.dataSourceTickets.sort = this.sort;
+    })
+  }
+
+
+  applyFilterTickets(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSourceTickets.filter = filterValue.trim().toLowerCase();
+
+    if (this.dataSourceTickets.paginator) {
+      this.dataSourceTickets.paginator.firstPage();
+    }
+  }
+
   getCoupons()
   {
     this.ticketService.getCoupons({id_store: localStorage.getItem('id_store')})
     .subscribe((res: any) => {
       this.coupons = res;
-      console.log(res);
-      
     })
   }
 
   getTables()
   {
-    this.ticketService.getTicketsBox({id_box: this.idBox})
+    this.ticketService.getTicketsBox({id_box: this.idBox, id_user: this.id_employee})
     .subscribe({
-      next: (data) => {
-        this.tickets = data;
-        
+      next: (data : any) => {
+        this.tickets = data.open;
       }, 
       error:(e) => {
 
@@ -400,7 +432,8 @@ export class PvComponent {
       method: this.paymentMethod,
       discount: 0,
       subtotal: this.total,
-      total: this.total
+      total: this.total,
+      id_box : this.idBox
     };
 
     this.ticketService.payTicket(paymentData).subscribe({
@@ -408,16 +441,8 @@ export class PvComponent {
         Swal.fire('Pago exitoso');
         this.closeTicket();
         this.showPaymentForm = false;
-        this.ticketService.getTicketsBox({id_box: this.idBox})
-        .subscribe({
-          next: (data) => {
-            this.tickets = data;
-            
-          }, 
-          error:(e) => {
-    
-          }
-        })
+        this.getTables();
+        this.getSells();
       },
       error: () => {
         Swal.fire('Error al cobrar');

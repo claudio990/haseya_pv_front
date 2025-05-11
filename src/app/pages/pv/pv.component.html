@@ -12,7 +12,7 @@
   <p>No hay ninguna caja abierta.<br>Pídele al gerente que abra la caja.</p>
 </div>
 
-<div class="pv" *ngIf="isOpenBox">
+<div class="pv" *ngIf="isOpenBox && !showTicket">
 
   <!-- Encabezado de mesas abiertas -->
   <div class="head_main" *ngIf="!isOpenTicket">
@@ -21,7 +21,7 @@
   </div>
 
   <!-- Mesas disponibles -->
-  <div class="tables" *ngIf="!isOpenTicket">
+  <div class="tables" *ngIf="!isOpenTicket ">
     <div class="table" *ngFor="let table of tickets" (click)="openTicket(table.id)">
       <h2>{{ table.name }}</h2>
       <p>Personas: {{ table.quantity }}</p>
@@ -246,4 +246,40 @@
 <div class="overlay-loading" *ngIf="isLoading">
   <div class="spinner"></div>
   <p>Abriendo mesa...</p>
+</div>
+
+
+
+
+<!-- TICKET PARA IMPRIMIR  -->
+ 
+<button mat-raised-button (click)="closeTicket()"  *ngIf="showTicket">Atrás</button>
+
+<div #ticketRef id="ticket" class="ticket-content" *ngIf="showTicket">
+  <div class="ticket-header">
+    <img [src]="logoBase64" alt="Logo" width="80">
+    <p><strong>Restaurante {{store.name}}</strong><br><small>Gracias por su preferencia</small></p>
+  </div>
+
+  <div class="ticket-body">
+    <p><strong>Ticket:</strong> {{ ticketActual?.id }}</p>
+    <p><strong>Fecha:</strong> {{ currentDate | date:'short' }}</p>
+    <div style="height: 1px; width: 100%; background-color: black;"></div>
+    <div *ngFor="let item of ticketActual.products">
+      <p>{{ item.name }} x{{ item.quantity }} - ${{ item.total }}</p>
+    </div>
+    <div style="height: 1px; width: 100%; background-color: black;"></div>
+    <p><strong>Total:</strong> ${{ total }}</p>
+  </div>
+
+  <div class="ticket-footer">
+    <p>¡Vuelva pronto!</p>
+  </div>
+</div>
+
+
+<!-- Botones -->
+<div *ngIf="showTicket" class="ticket-actions">
+  <button mat-raised-button  (click)="printTicket()">Imprimir</button>
+  <button mat-raised-button  (click)="sendTicketWhatsapp()">WhatsApp</button>
 </div>

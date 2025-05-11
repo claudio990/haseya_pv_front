@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Chart } from 'chart.js/auto';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { FinanzasService } from '../../services/finanzas.service';
 
 
 
@@ -18,60 +19,73 @@ import html2canvas from 'html2canvas';
   ],
   
 })
-export class DashboardComponent implements AfterViewInit {
+export class DashboardComponent implements AfterViewInit, OnInit {
   @ViewChild('ventasDiariasChart') ventasDiariasChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('productosPopularesChart') productosPopularesChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('horariosVentaChart') horariosVentaChartRef!: ElementRef<HTMLCanvasElement>;
 
   tiendas = ['Tienda 1', 'Tienda 2', 'Tienda 3'];
   tiendaSeleccionada = 'Todas';
-  periodoSeleccionado = 'Mes'; // Nuevo: periodo de filtrado
+  periodoSeleccionado = 'Mes';
 
   resumenVentas = {
     ventasMes: 0,
     ventasSemana: 0
   };
 
-  ventasRestaurantes = [
-    { tienda: 'Tienda 1', nombre: 'Restaurante A', ventas: 20000, tickets: 120 },
-    { tienda: 'Tienda 1', nombre: 'Restaurante B', ventas: 15000, tickets: 100 },
-    { tienda: 'Tienda 2', nombre: 'Restaurante C', ventas: 10000, tickets: 80 },
-    { tienda: 'Tienda 2', nombre: 'Restaurante D', ventas: 8000, tickets: 70 },
-    { tienda: 'Tienda 3', nombre: 'Restaurante E', ventas: 5000, tickets: 40 },
-  ];
-
+  ventasRestaurantes: any[] = [];
   restaurantesFiltrados: any = [];
 
-  ventasDiariasData: any = {
-    'Tienda 1': [120, 150, 180, 90, 200, 250, 220],
-    'Tienda 2': [80, 100, 110, 70, 90, 130, 140],
-    'Tienda 3': [60, 70, 80, 50, 60, 90, 100],
-    'Todas': [260, 320, 370, 210, 350, 470, 460],
-  };
-
-  ventasProductosData: any = {
-    'Tienda 1': [300, 250, 200, 400],
-    'Tienda 2': [200, 150, 180, 100],
-    'Tienda 3': [100, 80, 90, 70],
-    'Todas': [600, 480, 470, 570],
-  };
-
-  horariosVentaData: any = {
-    'Tienda 1': [50, 120, 180, 100, 140],
-    'Tienda 2': [30, 60, 90, 40, 70],
-    'Tienda 3': [20, 30, 50, 25, 35],
-    'Todas': [100, 210, 320, 165, 245],
-  };
+  ventasDiariasData: any = {};
+  ventasProductosData: any = {};
+  horariosVentaData: any = {};
 
   ventasDiariasChart: any;
   productosPopularesChart: any;
   horariosVentaChart: any;
 
-  constructor() {}
+  constructor(private apiService: FinanzasService) {}
+
+  ngOnInit() {
+    this.obtenerDatos();  // Llamar a la función obtenerDatos al inicializar el componente
+  }
 
   ngAfterViewInit() {
-    this.filtrarDatos();
+    // Puedes poner lógica adicional si necesitas que los gráficos se inicien después de la vista
   }
+
+  obtenerDatos() {
+    this.apiService.obtenerResumenVentas().subscribe({
+      next: (response) => {
+        const { resumen, ventasRestaurantes, ventasDiariasData, ventasProductosData, horariosVentaData } = response;
+  
+        // Resumen general
+        this.resumenVentas = {
+          ventasMes: resumen.ventas_,
+          ventasSemana: resumen.ventas_ / 4,
+        };
+  
+        // Ventas por tienda
+        this.ventasRestaurantes = [];
+        for (const tienda in ventasRestaurantes) {
+          if (ventasRestaurantes.hasOwnProperty(tienda)) {
+            this.ventasRestaurantes.push(...ventasRestaurantes[tienda]);
+          }
+        }
+  
+        // Asignar datos de gráficas
+        this.ventasDiariasData = ventasDiariasData;
+        this.ventasProductosData = ventasProductosData;
+        this.horariosVentaData = horariosVentaData;
+  
+        this.filtrarDatos();
+      },
+      error: (error) => {
+        console.error('Error al obtener los datos:', error);
+      }
+    });
+  }
+  
 
   filtrarDatos() {
     const tienda = this.tiendaSeleccionada;
@@ -100,16 +114,18 @@ export class DashboardComponent implements AfterViewInit {
     if (this.ventasDiariasChart) this.ventasDiariasChart.destroy();
     if (this.productosPopularesChart) this.productosPopularesChart.destroy();
     if (this.horariosVentaChart) this.horariosVentaChart.destroy();
-
-    const tienda = this.tiendaSeleccionada;
-
+  
+    // --- Ventas diarias (line chart)
+    const fechas = Object.keys(this.ventasDiariasData);
+    const montos = Object.values(this.ventasDiariasData);
+  
     this.ventasDiariasChart = new Chart(this.ventasDiariasChartRef.nativeElement, {
       type: 'line',
       data: {
-        labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
+        labels: fechas,
         datasets: [{
           label: 'Ventas diarias',
-          data: this.ventasDiariasData[tienda],
+          data: montos,
           borderColor: 'blue',
           backgroundColor: 'lightblue',
           fill: true,
@@ -117,33 +133,42 @@ export class DashboardComponent implements AfterViewInit {
       },
       options: { responsive: true }
     });
-
+  
+    // --- Productos populares (bar chart)
+    const labelsProductos = this.ventasProductosData.map((p: any) => p.name);
+    const valoresProductos = this.ventasProductosData.map((p: any) => parseInt(p.total_vendido));
+  
     this.productosPopularesChart = new Chart(this.productosPopularesChartRef.nativeElement, {
       type: 'bar',
       data: {
-        labels: ['Hamburguesa (12PM)', 'Pizza (2PM)', 'Papas (8PM)', 'Refresco (1PM)'],
+        labels: labelsProductos,
         datasets: [{
-          label: 'Productos + Horario de Venta',
-          data: this.ventasProductosData[tienda],
-          backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
+          label: 'Productos más vendidos',
+          data: valoresProductos,
+          backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
         }]
       },
       options: { responsive: true }
     });
-
+  
+    // --- Horarios de venta (bar chart)
+    const horas = Object.keys(this.horariosVentaData);
+    const ventasHoras = Object.values(this.horariosVentaData);
+  
     this.horariosVentaChart = new Chart(this.horariosVentaChartRef.nativeElement, {
       type: 'bar',
       data: {
-        labels: ['10AM', '12PM', '2PM', '6PM', '8PM'],
+        labels: horas.map(h => `${h}:00`),
         datasets: [{
           label: 'Ventas por horario',
-          data: this.horariosVentaData[tienda],
+          data: ventasHoras,
           backgroundColor: '#42A5F5'
         }]
       },
       options: { responsive: true }
     });
   }
+  
 
   exportarPDF() {
     const element = document.getElementById('dashboard-report');
@@ -175,5 +200,4 @@ export class DashboardComponent implements AfterViewInit {
       pdf.save('reporte-finanzas.pdf');
     });
   }
-  
 }

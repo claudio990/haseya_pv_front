@@ -1,11 +1,11 @@
 <div class="main">
 
     <div class="head_main">
-        <button mat-raised-button (click)="pdf()" style="margin-right: 150px;" *ngIf="ticket.is_open == 1">Imprimir Ticket</button>
+        <button mat-raised-button (click)="printTicket()" style="margin-right: 150px;" *ngIf="ticket.is_open == 1">Imprimir Ticket</button>
         <button mat-raised-button (click)="back()">Regresar</button>
     </div>
 
-    <div class="table_main" >
+    <div class="table_main" style="margin-bottom: 100px;">
         <h3>Productos</h3>
         <mat-form-field>
         <mat-label>Filtrar</mat-label>
@@ -50,48 +50,26 @@
 
     </div>
 
-    <div class="ticket" id="ticket" *ngIf="printTicket">
-        <div class="head">
-          
-          <div class="logo">
-            <img src="https://haseya-accesorios.com/haseya-pv/haseya-admin/assets/img/logo.jpg" alt="" class="">
-            <p class="date">Fecha: {{today}}</p>
-            <p class="order">No. Ticket: {{id_ticket}}</p>
-            <p class="client">Cliente: {{this.ticket.id_client != 0 ? client.name : 'Venta General'}}</p>
-          </div>
+    
+    <div #ticketRef id="ticket" class="ticket-content" *ngIf="bandprintTicket">
+      <div class="ticket-header">
+        <img [src]="logoBase64" alt="Logo" width="80">
+        <p><strong>Restaurante {{store.name}}</strong><br><small>Gracias por su preferencia</small></p>
+      </div>
 
-          <div class="inf">
-            <img src="https://haseya-accesorios.com/haseya-pv/haseya-admin/assets/img/qr.png" alt="" class="qr">
-            
-          </div>
+      <div class="ticket-body">
+        <p><strong>Ticket:</strong> {{ ticket?.id }}</p>
+        <p><strong>Fecha:</strong> {{ ticket.updated_at | date:'short' }}</p>
+        <div style="height: 1px; width: 100%; background-color: black;"></div>
+        <div *ngFor="let item of ticket.products">
+          <p>{{ item.name }} x{{ item.quantity }} - ${{ item.total }}</p>
         </div>
+        <div style="height: 1px; width: 100%; background-color: black;"></div>
+        <p><strong>Total:</strong> ${{ ticket.total }}</p>
+      </div>
 
-        <div class="table_ticket">
-          <table id="customers" style="width: 580px;">
-            <tr>
-              <th>Código de Producto</th>
-              <th>Cantidad</th>
-              <th>P/Unitario</th>
-              <th>P/Total</th>
-            </tr>
-           
-            <tr *ngFor="let element of productsTicket">
-              <td>{{element.code}}</td>
-              <td>{{element.quantity}}</td>
-              <td>$ {{element.simple}}</td>
-              <td>$ {{element.total}}</td>
-            </tr>
-            <tfoot>
-              <tr>
-                <th scope="row" colspan="1">Subtotal</th>
-                <td>$ {{ticket.total}}</td>
-                <th scope="row" colspan="1">Total con Descuento</th>
-                <td>$ {{ticket.total}}</td>
-              </tr>
-            </tfoot>
-          </table>
-         
-        </div>
+      <div class="ticket-footer">
+        <p>¡Vuelva pronto!</p>
       </div>
     
       

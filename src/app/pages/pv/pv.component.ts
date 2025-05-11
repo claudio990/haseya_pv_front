@@ -4,7 +4,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {AsyncPipe, CommonModule} from '@angular/common';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
-import { Observable, map, startWith } from 'rxjs';
 import { ProductsService } from '../../services/products.service';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import {MatIconModule} from '@angular/material/icon';
@@ -12,7 +11,6 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatGridListModule} from '@angular/material/grid-list'
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
-import { GeneralService } from '../../services/general.service';
 import { TicketService } from '../../services/ticket.service';
 import Swal from 'sweetalert2';
 import { CloseBoxComponent } from './close-box/close-box.component';
@@ -22,7 +20,9 @@ import { jsPDF } from "jspdf";
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSort } from '@angular/material/sort';
-
+import { StoreServiceService } from '../../services/store-service.service';
+import html2canvas from 'html2canvas';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-pv',
@@ -82,6 +82,11 @@ export class PvComponent {
   ticket: any[] = [];
   ticketGrouped: any[] = [];
 
+  // variables para ticket
+  @ViewChild('ticketRef') ticketRef!: ElementRef;
+  showTicket = false;
+  currentDate = new Date();
+
   //table for tickets
   displayedColumnsTickets: string[] = ['employee', 'total','method','start', 'end','options'];
   dataSourceTickets: MatTableDataSource<any>;
@@ -96,13 +101,14 @@ export class PvComponent {
   coupons: any = [];
   bandDiscount: number = 0;
   id_store: any;
-
+  logoBase64: any;
   // total: number = 0;
   constructor(private fb: FormBuilder, 
               private productService: ProductsService, 
-              private clientService: GeneralService,
+              private storeService: StoreServiceService,
               private ticketService:TicketService,
-              public dialog: MatDialog
+              public dialog: MatDialog,
+              private http: HttpClient
               )
   {
 
@@ -123,6 +129,8 @@ export class PvComponent {
   
   }
 
+  store: any = {};
+
   bandWaiter: boolean = false;
 
   ngOnInit() {
@@ -140,7 +148,10 @@ export class PvComponent {
     this.today = this.today.toLocaleDateString('es-Mx', options);
     this.id_store = localStorage.getItem('id_store');
     this.id_employee = localStorage.getItem('id_user');
-
+    this.storeService.getStore({id: this.id_store})
+    .subscribe((res: any) => {
+      this.store = res
+    })
     this.ticketService.validationBox({'id_employee': 0})
     .subscribe((res:any) =>{
       this.isOpenBox = res.isOpen == 1 ? true : false;
@@ -282,6 +293,9 @@ export class PvComponent {
     this.ticketActual = {};
     this.isOpenTicket = false;
     this.pendingItems = [];
+    this.showTicket = false;
+    
+    this.getSells();
     this.getTables();
   }
 
@@ -433,27 +447,130 @@ export class PvComponent {
       discount: 0,
       subtotal: this.total,
       total: this.total,
-      id_box : this.idBox
+      id_box: this.idBox
     };
-
+  
     this.ticketService.payTicket(paymentData).subscribe({
       next: (res: any) => {
         Swal.fire('Pago exitoso');
-        this.closeTicket();
+        // this.closeTicket();
         this.showPaymentForm = false;
-        this.getTables();
-        this.getSells();
+        // this.getTables();
+        // this.getSells();
+        let token = localStorage.getItem('token')
+        this.http.get('http://127.0.0.1:8000/api/logo-base64/' + this.store.image, {
+          responseType: 'text',
+          headers: {
+            Authorization: `Bearer ${token}` // debes obtener este token del sistema de auth
+          }
+        }).subscribe(base64 => {
+          this.logoBase64 = base64;
+        });
+  
+        // Mostrar ticket y permitir impresión/WhatsApp
+        this.showTicket = true;
+        this.currentDate = new Date();
       },
       error: () => {
         Swal.fire('Error al cobrar');
       }
     });
   }
+  
 
+  
+  printTicket() {
+    const ticketElement = document.getElementById('ticket');
+    if (!ticketElement) return;
+  
+    html2canvas(ticketElement, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      logging: false,
+      imageTimeout: 2000
+    }).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+  
+      const pxToMm = 0.264583;
+      const pdfWidth = 80; // mm
+      const pdfHeight = canvas.height * pxToMm;
+  
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: [pdfWidth, pdfHeight],
+      });
+  
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+  
+      // Imprimir directo sin abrir PDF
+      const blob = pdf.output('blob');
+      const blobUrl = URL.createObjectURL(blob);
+  
+      const printWindow = window.open(blobUrl);
+      if (printWindow) {
+        printWindow.onload = () => {
+          printWindow.focus();
+          printWindow.print();
+        };
+      }
+    });
+  }
+  
+
+  useFallback(event: Event) {
+    const target = event.target as HTMLImageElement;
+    target.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA...'; // <- imagen base64 mínima o logo por defecto
+  }
+  
+  
+  
+  sendTicketWhatsapp() {
+    Swal.fire({
+      title: 'Enviar por WhatsApp',
+      html:
+        '<input id="swal-input1" class="swal2-input" placeholder="Nombre">' +
+        '<input id="swal-input2" class="swal2-input" placeholder="Número (10 dígitos)" type="tel">',
+      focusConfirm: false,
+      preConfirm: () => {
+        const name = (document.getElementById('swal-input1') as HTMLInputElement)?.value;
+        const number = (document.getElementById('swal-input2') as HTMLInputElement)?.value;
+        if (!name || !number || number.length !== 10) {
+          Swal.showValidationMessage('Nombre y número válidos son requeridos');
+          return;
+        }
+        return { name, number };
+      }
+    }).then(async (result) => {
+      if (result.isConfirmed && result.value) {
+        const { name, number } = result.value;
+  
+        // 👉 Llama a tu servicio para guardar el contacto
+        this.ticketService.saveWhatsappContact({
+          name: name,
+          phone: number
+        }).subscribe({
+          next: () => {
+            // 🧾 Construir ticket completo en texto
+            const lines = this.ticketActual.products.map((p: any) => `${p.quantity} x ${p.name} - $${p.total}`).join('\n');
+            const ticketText = `🍽 ${this.store.name}\nTicket: ${this.ticketActual?.id}\nCliente: ${name}\n\n${lines}\n\nTotal: $${this.total}\nGracias por su compra.`;
+            const encoded = encodeURIComponent(ticketText);
+            const waUrl = `https://wa.me/52${number}?text=${encoded}`;
+            window.open(waUrl, '_blank');
+          },
+          error: (err) => {
+            console.error(err);
+            Swal.fire('Error', 'No se pudo guardar el número en la base de datos.', 'error');
+          }
+        });
+      }
+    });
+  }
+  
   cancelPayment() {
     this.showPaymentForm = false;
   }
-  
 
 
   // pdf()
@@ -464,12 +581,12 @@ export class PvComponent {
   //   const data = document.getElementById('ticket') as HTMLElement;
   //   pdf.html(data, {
   //       callback: function () {
-  //         // pdf.save('test.pdf');
+  //         pdf.save('test.pdf');
   //         window.open(pdf.output('bloburl')); // to debug
   //       },
-  //       // margin: [60, 60, 60, 60],
-  //       // x: 32,
-  //       // y: 32,
+  //       margin: [60, 60, 60, 60],
+  //       x: 32,
+  //       y: 32,
   //     });
   //   }, 1000);
 

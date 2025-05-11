@@ -478,3 +478,61 @@
     transform: scale(0.9);
   }
 }
+
+
+
+// css para ticket
+
+.ticket-content {
+  width: 80mm;
+  padding: 10px;
+  font-size: 12px;
+  font-family: monospace;
+  background: white;
+  color: #000;
+}
+#ticketRef {
+  width: 80mm;
+  padding: 8mm;
+  font-size: 12px;
+  font-family: Arial, sans-serif;
+  background: white;
+  color: black;
+}
+
+.ticket-header, .ticket-footer {
+  text-align: center;
+}
+
+.ticket-body p {
+  margin: 2px 0;
+}
+.ticket-body{
+  margin-left: 4px;
+}
+
+@media print {
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #ticket,
+  #ticket * {
+    visibility: visible;
+  }
+
+  #ticket {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm;
+    background: white;
+    color: black;
+  }
+}
+

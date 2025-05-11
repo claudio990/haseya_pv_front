@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
 import {MatSort, MatSortModule} from '@angular/material/sort';
 import {MatTableDataSource, MatTableModule} from '@angular/material/table';
@@ -14,6 +14,9 @@ import { AddPayComponent } from '../add-pay/add-pay.component';
 import { MatDialog } from '@angular/material/dialog';
 import { jsPDF } from "jspdf";
 import { GeneralService } from '../../../services/general.service';
+import { StoreServiceService } from '../../../services/store-service.service';
+import { HttpClient } from '@angular/common/http';
+import html2canvas from 'html2canvas';
 
 @Component({
   selector: 'app-see-ticket',
@@ -31,17 +34,45 @@ export class SeeTicketComponent implements OnInit{
   id_ticket: any;
   productsTicket: any = [];
   totalDeuda: any = 0;
-  printTicket: boolean = false;
+  // printTicket: boolean = false;
   today:any;
   client:any = {};
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginatorProducts: MatPaginator;
   @ViewChild(MatSort) sortProducts: MatSort;
+  // variables para ticket
+    @ViewChild('ticketRef') ticketRef!: ElementRef;
+    showTicket = false;
+    currentDate = new Date();
+    logoBase64: any;
+    store: any;
+    bandprintTicket : boolean = false;
   ticket: any = {};
-  constructor(private service: TicketService, private route: ActivatedRoute,  public dialog: MatDialog, public generalService: GeneralService) {
+  constructor(private service: TicketService, 
+            private storeService: StoreServiceService,
+    private route: ActivatedRoute, 
+    private http: HttpClient,
+     public dialog: MatDialog, 
+     public  generalService: GeneralService) {
   }
   ngOnInit() {
+    this.storeService.getStore({id: localStorage.getItem('id_store')})
+    .subscribe((res: any) => {
+      this.store = res
+      let token = localStorage.getItem('token')
+      this.http.get('http://127.0.0.1:8000/api/logo-base64/' + this.store.image, {
+        responseType: 'text',
+        headers: {
+          Authorization: `Bearer ${token}` // debes obtener este token del sistema de auth
+        }
+      }).subscribe(base64 => {
+        this.logoBase64 = base64;
+      });
+    })
+
+
+
     this.today = new Date();
     const options = {
       year: 'numeric',
@@ -119,28 +150,47 @@ export class SeeTicketComponent implements OnInit{
   }
 
 
-  pdf()
-  {
-    this.printTicket = true;
-    setTimeout(() => {
-      let pdf = new jsPDF('p', 'pt', [612, 792]);
-    const data = document.getElementById('ticket') as HTMLElement;
-    pdf.html(data, {
-        callback: function () {
-          // pdf.save('test.pdf');
-          window.open(pdf.output('bloburl')); // to debug
-        },
-        // margin: [60, 60, 60, 60],
-        // x: 32,
-        // y: 32,
+  printTicket() {
+    this.bandprintTicket = true;
+    const ticketElement = document.getElementById('ticket');
+    if (!ticketElement) return;
+  
+    html2canvas(ticketElement, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      logging: false,
+      imageTimeout: 2000
+    }).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+  
+      const pxToMm = 0.264583;
+      const pdfWidth = 80; // mm
+      const pdfHeight = canvas.height * pxToMm;
+  
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: [pdfWidth, pdfHeight],
       });
-    }, 1000);
-
-    setTimeout(() => {
-      this.printTicket = false;
-    }, 1500);
-    
+  
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+  
+      // Imprimir directo sin abrir PDF
+      const blob = pdf.output('blob');
+      const blobUrl = URL.createObjectURL(blob);
+  
+      const printWindow = window.open(blobUrl);
+      if (printWindow) {
+        printWindow.onload = () => {
+          printWindow.focus();
+          printWindow.print();
+          this.bandprintTicket = true;
+        };
+      }
+    });
   }
+  
 
   back()
   {

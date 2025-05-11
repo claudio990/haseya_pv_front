@@ -72,4 +72,9 @@ export class TicketService {
   {
     return this.httpService.ejectQuery('validationBox', query);
   }
+
+
+  saveWhatsappContact(data: any) {
+    return this.httpService.ejectPost('whatsappContact', data);
+  }
 }

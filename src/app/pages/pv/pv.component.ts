@@ -152,7 +152,7 @@ export class PvComponent {
     .subscribe((res: any) => {
       this.store = res
     })
-    this.ticketService.validationBox({'id_employee': 0})
+    this.ticketService.validationBox({'id_store': this.id_store})
     .subscribe((res:any) =>{
       this.isOpenBox = res.isOpen == 1 ? true : false;
       this.idBox = this.isOpenBox ? res.id_box : ''

@@ -24,9 +24,10 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   @ViewChild('productosPopularesChart') productosPopularesChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('horariosVentaChart') horariosVentaChartRef!: ElementRef<HTMLCanvasElement>;
 
-  tiendas = ['Tienda 1', 'Tienda 2', 'Tienda 3'];
+  tiendas: string[] = ['Todas'];
   tiendaSeleccionada = 'Todas';
   periodoSeleccionado = 'Mes';
+  vendedorMes: any = {};
 
   resumenVentas = {
     ventasMes: 0,
@@ -34,10 +35,10 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   };
 
   ventasRestaurantes: any[] = [];
-  restaurantesFiltrados: any = [];
+  restaurantesFiltrados: any[] = [];
 
   ventasDiariasData: any = {};
-  ventasProductosData: any = {};
+  ventasProductosData: any[] = [];
   horariosVentaData: any = {};
 
   ventasDiariasChart: any;
@@ -47,37 +48,41 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   constructor(private apiService: FinanzasService) {}
 
   ngOnInit() {
-    this.obtenerDatos();  // Llamar a la función obtenerDatos al inicializar el componente
+    this.obtenerDatos();
   }
 
-  ngAfterViewInit() {
-    // Puedes poner lógica adicional si necesitas que los gráficos se inicien después de la vista
-  }
+  ngAfterViewInit() {}
 
   obtenerDatos() {
     this.apiService.obtenerResumenVentas().subscribe({
       next: (response) => {
         const { resumen, ventasRestaurantes, ventasDiariasData, ventasProductosData, horariosVentaData } = response;
-  
+
         // Resumen general
         this.resumenVentas = {
           ventasMes: resumen.ventas_,
           ventasSemana: resumen.ventas_ / 4,
         };
-  
-        // Ventas por tienda
+
+        // Procesar restaurantes (aplanar usuarios con tienda)
         this.ventasRestaurantes = [];
-        for (const tienda in ventasRestaurantes) {
-          if (ventasRestaurantes.hasOwnProperty(tienda)) {
-            this.ventasRestaurantes.push(...ventasRestaurantes[tienda]);
+        this.tiendas = ['Todas'];
+
+        for (const tienda of ventasRestaurantes) {
+          this.tiendas.push(tienda.nombre_tienda);
+          for (const usuario of tienda.usuarios) {
+            this.ventasRestaurantes.push({
+              ...usuario,
+              tienda: tienda.nombre_tienda
+            });
           }
         }
-  
-        // Asignar datos de gráficas
+
+        // Gráficas
         this.ventasDiariasData = ventasDiariasData;
         this.ventasProductosData = ventasProductosData;
         this.horariosVentaData = horariosVentaData;
-  
+
         this.filtrarDatos();
       },
       error: (error) => {
@@ -85,28 +90,33 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       }
     });
   }
-  
 
   filtrarDatos() {
     const tienda = this.tiendaSeleccionada;
 
-    // Filtrar restaurantes
     if (tienda === 'Todas') {
       this.restaurantesFiltrados = this.ventasRestaurantes;
     } else {
       this.restaurantesFiltrados = this.ventasRestaurantes.filter(r => r.tienda === tienda);
     }
 
-    // Actualizar resumen ventas
-    const ventas = this.restaurantesFiltrados.reduce((sum : any, r: any) => sum + r.ventas, 0);
-    const tickets = this.restaurantesFiltrados.reduce((sum: any, r: any) => sum + r.tickets, 0);
+    const ventas = this.restaurantesFiltrados.reduce((sum, r) => sum + r.ventas, 0);
+    const tickets = this.restaurantesFiltrados.reduce((sum, r) => sum + r.tickets, 0);
 
     this.resumenVentas = {
       ventasMes: ventas,
-      ventasSemana: ventas / 4, // Suponiendo 4 semanas
+      ventasSemana: ventas / 4,
     };
 
-    // Actualizar gráficas
+      // Vendedor del mes (mayor ventas)
+    let vendedorMes = this.restaurantesFiltrados[0] || null;
+    for (const vendedor of this.restaurantesFiltrados) {
+      if (!vendedorMes || vendedor.ventas > vendedorMes.ventas) {
+        vendedorMes = vendedor;
+      }
+    }
+     this.vendedorMes = vendedorMes;
+
     this.actualizarGraficos();
   }
 
@@ -114,11 +124,11 @@ export class DashboardComponent implements AfterViewInit, OnInit {
     if (this.ventasDiariasChart) this.ventasDiariasChart.destroy();
     if (this.productosPopularesChart) this.productosPopularesChart.destroy();
     if (this.horariosVentaChart) this.horariosVentaChart.destroy();
-  
-    // --- Ventas diarias (line chart)
+
+    // --- Ventas diarias
     const fechas = Object.keys(this.ventasDiariasData);
     const montos = Object.values(this.ventasDiariasData);
-  
+
     this.ventasDiariasChart = new Chart(this.ventasDiariasChartRef.nativeElement, {
       type: 'line',
       data: {
@@ -133,11 +143,11 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       },
       options: { responsive: true }
     });
-  
-    // --- Productos populares (bar chart)
-    const labelsProductos = this.ventasProductosData.map((p: any) => p.name);
-    const valoresProductos = this.ventasProductosData.map((p: any) => parseInt(p.total_vendido));
-  
+
+    // --- Productos populares
+    const labelsProductos = this.ventasProductosData.map(p => p.name);
+    const valoresProductos = this.ventasProductosData.map(p => parseInt(p.total_vendido));
+
     this.productosPopularesChart = new Chart(this.productosPopularesChartRef.nativeElement, {
       type: 'bar',
       data: {
@@ -150,11 +160,11 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       },
       options: { responsive: true }
     });
-  
-    // --- Horarios de venta (bar chart)
+
+    // --- Horarios de venta
     const horas = Object.keys(this.horariosVentaData);
     const ventasHoras = Object.values(this.horariosVentaData);
-  
+
     this.horariosVentaChart = new Chart(this.horariosVentaChartRef.nativeElement, {
       type: 'bar',
       data: {
@@ -168,35 +178,34 @@ export class DashboardComponent implements AfterViewInit, OnInit {
       options: { responsive: true }
     });
   }
-  
 
   exportarPDF() {
     const element = document.getElementById('dashboard-report');
     if (!element) return;
-  
+
     html2canvas(element, { scale: 2 }).then(canvas => {
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
-  
+
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
-  
+
       const imgWidth = pageWidth;
       const imgHeight = (canvas.height * pageWidth) / canvas.width;
-  
+
       let heightLeft = imgHeight;
       let position = 0;
-  
+
       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
-  
+
       while (heightLeft > 0) {
         position = heightLeft - imgHeight;
         pdf.addPage();
         pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
       }
-  
+
       pdf.save('reporte-finanzas.pdf');
     });
   }

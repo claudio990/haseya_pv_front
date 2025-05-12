@@ -46,15 +46,15 @@ export class LoginComponent {
           }).then(() => {
             if(data.user.type == 'waiter' || data.user.type == 'manager')
             {
-              location.assign("http://localhost:4200/main/pv");
+              location.assign("https://alasflautas.com/pv/admin/main/pv");
             }
             else if(data.user.type == 'admin')
             {
-              location.assign("http://localhost:4200/main/dashboard");
+              location.assign("https://alasflautas.com/pv/admin/main/dashboard");
             }
             else if(data.user.type == 'kitchen')
             {
-              location.assign("http://localhost:4200/main/kitchen");
+              location.assign("https://alasflautas.com/pv/admin/main/kitchen");
             }
           })
 

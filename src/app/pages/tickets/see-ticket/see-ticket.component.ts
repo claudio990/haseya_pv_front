@@ -17,6 +17,7 @@ import { GeneralService } from '../../../services/general.service';
 import { StoreServiceService } from '../../../services/store-service.service';
 import { HttpClient } from '@angular/common/http';
 import html2canvas from 'html2canvas';
+import { environment } from '../../../../environments/environment.development';
 
 @Component({
   selector: 'app-see-ticket',
@@ -61,7 +62,7 @@ export class SeeTicketComponent implements OnInit{
     .subscribe((res: any) => {
       this.store = res
       let token = localStorage.getItem('token')
-      this.http.get('http://127.0.0.1:8000/api/logo-base64/' + this.store.image, {
+      this.http.get(environment.url_api + this.store.image, {
         responseType: 'text',
         headers: {
           Authorization: `Bearer ${token}` // debes obtener este token del sistema de auth
@@ -109,6 +110,17 @@ export class SeeTicketComponent implements OnInit{
 
   }
   
+  getComensalesFromTicket(): number[] {
+      const comensales = (this.ticket?.products || [])
+        .map((p:any) => Number(p.comensal))
+        .filter((c:any) => !isNaN(c)) as number[];
+
+      return [...new Set(comensales)].sort((a, b) => a - b);
+    }
+
+    getProductosPorComensal(comensal: number): any[] {
+    return (this.ticket?.products || []).filter((p:any) => p.comensal === comensal);
+  }
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;

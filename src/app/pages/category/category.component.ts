@@ -21,7 +21,15 @@ export interface UserData {
 @Component({
   selector: 'app-category',
   standalone: true,
-  imports: [MatFormFieldModule, MatInputModule, MatTableModule, MatSortModule, MatPaginatorModule, MatButtonModule, RouterModule],
+  imports: [
+    MatFormFieldModule, 
+    MatInputModule, 
+    MatTableModule, 
+    MatSortModule, 
+    MatPaginatorModule, 
+    MatButtonModule, 
+    RouterModule
+  ],
   templateUrl: './category.component.html',
   styleUrl: './category.component.scss'
 })

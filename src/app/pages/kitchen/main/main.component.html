@@ -9,11 +9,16 @@
         <h2 style="color: rgb(48, 48, 128);">{{ order.ticketName }}</h2>
       </div>
 
-      <ul class="order-items">
-        <li *ngFor="let item of order.items">
-          {{ item.quantity }} x {{ item.name }}
-        </li>
-      </ul>
+     <!-- Agrupar productos por comensal -->
+        <div *ngFor="let comensal of getComensales(order)">
+          <h3>🧾 Comensal {{ comensal }}</h3>
+          <ul class="order-items">
+      <li *ngFor="let item of getItemsByComensal(order, comensal)">
+        {{ item.quantity }} x {{ item.name }}
+      </li>
+    </ul>
+</div>
+
 
       <div class="order-actions">
         <button (click)="confirmFinish(order.id)">Marcar como terminada</button>

@@ -23,6 +23,8 @@ import { MatSort } from '@angular/material/sort';
 import { StoreServiceService } from '../../services/store-service.service';
 import html2canvas from 'html2canvas';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment.development';
+import { FinanzasService } from '../../services/finanzas.service';
 
 @Component({
   selector: 'app-pv',
@@ -81,6 +83,7 @@ export class PvComponent {
   selectedCategory = this.categories[0];
   ticket: any[] = [];
   ticketGrouped: any[] = [];
+  selectedComensal: any = 1;
 
   // variables para ticket
   @ViewChild('ticketRef') ticketRef!: ElementRef;
@@ -101,12 +104,16 @@ export class PvComponent {
   coupons: any = [];
   bandDiscount: number = 0;
   id_store: any;
+  environment: any = {};
   logoBase64: any;
+  typesPays: any = [];
+
   // total: number = 0;
   constructor(private fb: FormBuilder, 
               private productService: ProductsService, 
               private storeService: StoreServiceService,
               private ticketService:TicketService,
+              private financeService: FinanzasService,
               public dialog: MatDialog,
               private http: HttpClient
               )
@@ -134,9 +141,12 @@ export class PvComponent {
   bandWaiter: boolean = false;
 
   ngOnInit() {
-    
+    this.environment = environment;
     this.isLoading = true; // activa loading
-    
+    this.financeService.getTypes()
+    .subscribe((res:any) =>{
+      this.typesPays = res;
+    })
     const type = localStorage.getItem('user')
     this.bandWaiter = type == 'waiter' ? true : false;
     this.today = new Date();
@@ -164,9 +174,22 @@ export class PvComponent {
 
       this.productService.getProductsBox({id_store: localStorage.getItem('id_store')})
       .subscribe({
-        next: (data) => {
-          this.categories = data;
-          this.selectCategory(this.categories[0]);
+        next: (data:any) => {
+        const filteredCategories = data.filter((cat: any) => cat.products && cat.products.length > 0);
+
+          // 2. Mapear cada categoría y sus productos para añadir 'addedToCart'
+          this.categories = filteredCategories.map((category: any) => {
+            return {
+              ...category, // Copia todas las propiedades de la categoría original
+              products: category.products.map((product: any) => ({
+                ...product,
+                addedToCart: false // Añade la propiedad a cada producto
+              }))
+            };
+          });
+          this.selectedCategory = this.categories[0];
+          
+
         }, 
         error:(e) => {
   
@@ -190,6 +213,11 @@ export class PvComponent {
       this.dataSourceTickets.paginator = this.ticketsPaginator;
       this.dataSourceTickets.sort = this.sort;
     })
+  }
+
+  getComensales(): number[] {
+    const cantidad = this.ticketActual?.quantity || 1;
+    return Array.from({ length: cantidad }, (_, i) => i + 1);
   }
 
 
@@ -240,6 +268,8 @@ export class PvComponent {
   }
 
   addTicket(name: string, count: number, toGo: any) {
+    this.clientName = '';
+    this.peopleCount = 1;
     this.isLoading = true; // activa loading
     
     const data = {
@@ -336,14 +366,27 @@ export class PvComponent {
   
   
   addToTicket(product: any) {
-    const found = this.pendingItems.find(p => p.name === product.name);
+    product.addedToCart = true;
+    const comensal = parseInt(this.selectedComensal)
+    // Verifica si ya existe este producto para ese comensal
+    const found = this.pendingItems.find(p => p.name === product.name && p.comensal === comensal);
     if (found) {
       found.quantity++;
     } else {
       
-      this.pendingItems.push({ ...product, quantity: 1 });
+      this.pendingItems.push({ ...product, quantity: 1, comensal : comensal});
     }
+    setTimeout(() => {
+      product.addedToCart = false;
+      
+    }, 100);
+      
   }
+  getComensalItems(comensal: number) {
+    return this.pendingItems.filter(p => p.comensal === comensal);
+  }
+
+
   
   removeItem(item: any) {
     const index = this.pendingItems.findIndex(p => p.name === item.name);
@@ -362,6 +405,7 @@ export class PvComponent {
   }
   
   sendOrder() {
+    console.log(this.pendingItems);
     if (this.pendingItems.length === 0) {
       Swal.fire('No hay productos nuevos para enviar');
       return;
@@ -372,7 +416,8 @@ export class PvComponent {
       id_product: item.code, // Asegúrate que cada producto tenga 'id'
       quantity: item.quantity,
       simple_price: item.cost,
-      total: item.cost * item.quantity
+      total: item.cost * item.quantity,
+      comensal: item.comensal 
     }));
     // Llamada al backend usando productService
     this.productService.addProductsToTicket(payload, this.ticketActual.id, localStorage.getItem('id_store')).subscribe({
@@ -400,6 +445,24 @@ export class PvComponent {
       }
     });
   }
+
+  getComensalesFromTicket(): number[] {
+    const comensales = (this.ticketActual?.products || [])
+      .map((p:any) => Number(p.comensal))
+      .filter((c:any) => !isNaN(c)) as number[];
+
+    return [...new Set(comensales)].sort((a, b) => a - b);
+  }
+
+  getProductosPorComensal(comensal: number): any[] {
+  return (this.ticketActual?.products || []).filter((p:any) => p.comensal === comensal);
+}
+
+
+  getComensalProducts(comensal: number) {
+    return this.productsTicket.filter(p => p.comensal === comensal);
+  }
+
 
   getTotal(): number {
     const sent = this.productsTicket.reduce((acc, item) => acc + item.total, 0);
@@ -458,7 +521,7 @@ export class PvComponent {
         // this.getTables();
         // this.getSells();
         let token = localStorage.getItem('token')
-        this.http.get('http://127.0.0.1:8000/api/logo-base64/' + this.store.image, {
+        this.http.get(environment.url_api + this.store.image, {
           responseType: 'text',
           headers: {
             Authorization: `Bearer ${token}` // debes obtener este token del sistema de auth

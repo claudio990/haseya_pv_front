@@ -37,6 +37,21 @@ export class MainComponent implements OnInit, OnDestroy {
     }
   }
 
+  getComensales(order: any): number[] {
+    const comensalesSet = new Set<number>();
+    order.items.forEach((item:any) => {
+      if (item.comensal) {
+        comensalesSet.add(item.comensal);
+      }
+    });
+    return Array.from(comensalesSet).sort((a, b) => a - b);
+  }
+
+  getItemsByComensal(order: any, comensal: number): any[] {
+  return order.items.filter((item: any) => item.comensal === comensal);
+}
+
+
   loadCommands() {
     const id_store = localStorage.getItem('id_store');
     const timestamp = new Date().getTime();

@@ -30,6 +30,12 @@
                 <p *ngIf="storage.bandActive">Categorías</p>
             </a>
         </div>
+        <div class="page" *ngIf="bandAdmin">
+            <a href="" class="" [routerLink]="['pagos']">
+                <i class="bi bi-wallet2"></i>
+                <p *ngIf="storage.bandActive">Tipos de Pago</p>
+            </a>
+        </div>
 
 <!--
         <div class="page" *ngIf="bandAdmin">

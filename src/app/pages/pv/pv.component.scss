@@ -218,12 +218,26 @@
   border-radius: 12px;
   padding: 12px;
   cursor: pointer;
-  transition: box-shadow 0.3s;
+  transition: box-shadow 0.3s ease-in-out, transform 0.2s ease-in-out; /* Agregamos transform a la transición */
   text-align: center;
   height: 220px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+
+  // Efecto al pasar el mouse (hover)
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); // Una sombra más suave para el hover
+    transform: translateY(-2px); // Un ligero levantamiento
+  }
+}
+
+// Clase para cuando el producto ha sido añadido (la aplicaremos dinámicamente con Angular)
+.product-card.added {
+  box-shadow: 0 0 0 3px #4CAF50, 0 4px 10px rgba(0, 0, 0, 0.2); // Sombra más notoria y un borde de color (verde)
+  transform: scale(1.02); // Un ligero escalado
+  background-color: rgba(232, 245, 233, 0.7); // Un fondo muy sutil para indicar que se añadió
+  border-color: #4CAF50; // Borde del color de confirmación
 }
 
 

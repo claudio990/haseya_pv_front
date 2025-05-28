@@ -54,6 +54,7 @@
     <div #ticketRef id="ticket" class="ticket-content" *ngIf="bandprintTicket">
       <div class="ticket-header">
         <img [src]="logoBase64" alt="Logo" width="80">
+        <!-- <img src="https://alasflautas.com/pv/pv_api/storage/app/public/stores/{{store.image}}" alt="Logo" width="80"> -->
         <p><strong>Restaurante {{store.name}}</strong><br><small>Gracias por su preferencia</small></p>
       </div>
 
@@ -61,8 +62,12 @@
         <p><strong>Ticket:</strong> {{ ticket?.id }}</p>
         <p><strong>Fecha:</strong> {{ ticket.updated_at | date:'short' }}</p>
         <div style="height: 1px; width: 100%; background-color: black;"></div>
-        <div *ngFor="let item of ticket.products">
-          <p>{{ item.name }} x{{ item.quantity }} - ${{ item.total }}</p>
+        <div *ngFor="let comensal of getComensalesFromTicket()">
+          <p><strong>Comensal {{ comensal }}</strong></p>
+          <div *ngFor="let item of getProductosPorComensal(comensal)">
+            <p>{{ item.name }} x{{ item.quantity }} - ${{ item.total }}</p>
+          </div>
+          <hr />
         </div>
         <div style="height: 1px; width: 100%; background-color: black;"></div>
         <p><strong>Total:</strong> ${{ ticket.total }}</p>

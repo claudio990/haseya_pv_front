@@ -151,6 +151,9 @@
     <!-- Contenido del ticket -->
     <div class="ticket-container">
       
+      
+
+
       <!-- Categorías -->
       <div class="category-bar">
         <div 
@@ -161,6 +164,13 @@
           {{ cat.name }}
         </div>
       </div>
+      <!-- Selector de comensal -->
+      <div class="comensal-selector" style="margin-bottom: 10px; margin-top: 20px;">
+        <label for="comensalSelect"><strong>Selecciona comensal:</strong></label>
+        <select id="comensalSelect" [(ngModel)]="selectedComensal" style="margin-left: 8px; width: 120px; height: 25px;">
+          <option *ngFor="let c of getComensales()" [value]="c">Comensal {{ c }}</option>
+        </select>
+      </div>
 
       <div class="main-content">
         
@@ -168,13 +178,15 @@
         <div class="products">
           <div 
             class="product-card" 
+            [class.added]="product.addedToCart"
             *ngFor="let product of selectedCategory?.products"
             (click)="addToTicket(product)">
-            <img src="http://localhost:8000/storage/products/{{product.image}}" alt="{{ product.name }}" />
+            <img src="{{environment.url_img_products + product.image}}" alt="{{ product.name }}" />
             <div class="product-info">
               <h4>{{ product.name }}</h4>
               <p>${{ product.cost }}</p>
             </div>
+            
           </div>
         </div>
 
@@ -184,16 +196,34 @@
 
           <!-- Productos enviados -->
           <ul>
-            <li *ngFor="let item of productsTicket">
-              {{ item.name }} x{{ item.quantity }}
-              <span class="locked">✔️ enviado</span>
-            </li>
+           <!-- Productos ENVIADOS separados por comensal -->
+          <div *ngFor="let comensal of [].constructor(ticketActual.quantity); let i = index">
+            <h4>🧾 Comensal {{ i + 1 }}</h4>
+            <ul>
+              <li *ngFor="let item of getComensalProducts(i + 1)">
+                {{ item.name }} x{{ item.quantity }}
+                <span class="locked">✔️ enviado</span>
+              </li>
+            </ul>
+            <ul>
+              <li *ngFor="let item of getComensalItems(i + 1)">
+                {{ item.name }} x{{ item.quantity }}
+                <button (click)="removeItem(item)">❌</button>
+              </li>
+            </ul>
+          </div>    
 
-            <!-- Productos pendientes -->
-            <li *ngFor="let item of pendingItems">
-              {{ item.name }} x{{ item.quantity }}
-              <button (click)="removeItem(item)">❌</button>
-            </li>
+           <!-- Mostrar productos por comensal -->
+          <!-- <div *ngFor="let comensal of [].constructor(ticketActual.quantity); let i = index">
+            <h4>Comensal {{ i + 1 }}</h4>
+            <ul>
+              <li *ngFor="let item of getComensalItems(i + 1)">
+                {{ item.name }} x{{ item.quantity }}
+                <button (click)="removeItem(item)">❌</button>
+              </li>
+            </ul>
+          </div> -->
+
           </ul>
 
           <p class="total">Total: ${{ total }}</p>
@@ -214,12 +244,10 @@
 
       <label>Método de pago:</label>
       <select [(ngModel)]="paymentMethod">
-        <option value="efectivo">Efectivo</option>
-        <option value="tarjeta">Tarjeta</option>
-        <option value="transferencia">Transferencia</option>
+        <option value="{{type.name}}" *ngFor="let type of typesPays">{{type.name}}</option>
       </select>
 
-      <div *ngIf="paymentMethod === 'efectivo'">
+      <div *ngIf="paymentMethod === 'Efectivo'">
         <label>Pago con:</label>
         <input type="number" [(ngModel)]="amountReceived">
         
@@ -258,6 +286,7 @@
 <div #ticketRef id="ticket" class="ticket-content" *ngIf="showTicket">
   <div class="ticket-header">
     <img [src]="logoBase64" alt="Logo" width="80">
+    <!-- <img src="https://alasflautas.com/pv/pv_api/storage/app/public/stores/{{store.image}}" alt="Logo" width="80"> -->
     <p><strong>Restaurante {{store.name}}</strong><br><small>Gracias por su preferencia</small></p>
   </div>
 
@@ -265,12 +294,20 @@
     <p><strong>Ticket:</strong> {{ ticketActual?.id }}</p>
     <p><strong>Fecha:</strong> {{ currentDate | date:'short' }}</p>
     <div style="height: 1px; width: 100%; background-color: black;"></div>
-    <div *ngFor="let item of ticketActual.products">
-      <p>{{ item.name }} x{{ item.quantity }} - ${{ item.total }}</p>
-    </div>
+
+  <div *ngFor="let comensal of getComensalesFromTicket()">
+  <p><strong>Comensal {{ comensal }}</strong></p>
+  <div *ngFor="let item of getProductosPorComensal(comensal)">
+    <p>{{ item.name }} x{{ item.quantity }} - ${{ item.total }}</p>
+  </div>
+  <hr />
+</div>
+
+
     <div style="height: 1px; width: 100%; background-color: black;"></div>
     <p><strong>Total:</strong> ${{ total }}</p>
   </div>
+
 
   <div class="ticket-footer">
     <p>¡Vuelva pronto!</p>

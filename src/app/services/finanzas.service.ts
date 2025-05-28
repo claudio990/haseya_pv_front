@@ -27,4 +27,22 @@ export class FinanzasService {
   obtenerResumenVentas(): Observable<any> {
     return this.httpService.ejectQuery<any>('dashboard');
   }
+
+
+  getTypes()
+  {
+    return this.httpService.ejectQuery('getTypes');
+  }
+  addType(query:any)
+  {
+    return this.httpService.ejectPost('addType', query);
+  }
+  deleteTypes(query:any)
+  {
+    return this.httpService.ejectPost('deleteType', query);
+  }
+  editType(query:any)
+  {
+    return this.httpService.ejectPost('editType', query);
+  }
 }

@@ -32,6 +32,7 @@ import { AbonosComponent } from './pages/tickets/abonos/abonos.component';
 import { StoresComponent } from './pages/stores/stores.component';
 import { StoreComponent } from './pages/stores/store/store.component';
 import { MainComponent } from './pages/kitchen/main/main.component';
+import { TypePayComponent } from './pages/type-pay/type-pay.component';
 
 export const routes: Routes = [
     {
@@ -126,6 +127,9 @@ export const routes: Routes = [
             },
             {
                 path: 'kitchen', component: MainComponent
+            },
+            {
+                path: 'pagos', component: TypePayComponent
             }
         ]
     },

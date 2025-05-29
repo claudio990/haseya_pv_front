@@ -46,6 +46,12 @@ export class MainComponent implements OnInit, OnDestroy {
     });
     return Array.from(comensalesSet).sort((a, b) => a - b);
   }
+   getNoteForComensal(order:any, comensal: number): string | undefined {
+    // Primero, verifica si la orden tiene un array de notas.
+    // Luego, busca la nota cuyo 'comensal' coincida.
+    const noteEntry = order.notes?.find((note: any) => note.comensal === comensal);
+    return noteEntry ? noteEntry.note : undefined; // Retorna la nota o undefined si no la encuentra
+  }
 
   getItemsByComensal(order: any, comensal: number): any[] {
   return order.items.filter((item: any) => item.comensal === comensal);

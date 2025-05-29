@@ -37,11 +37,12 @@ export class ProductsService {
     return this.httpService.ejectQuery('getProductsBox', query);
   }
 
-  addProductsToTicket(products: any[], ticketId: any, idStore: any) {
+  addProductsToTicket(notes: any, products: any[], ticketId: any, idStore: any) {
     return this.httpService.ejectPost('addProductsToTicket', {
       id_ticket: ticketId,
       products: products,
-      id_store: idStore
+      id_store: idStore,
+      notes: notes
     });
   }
   addProduct(query:any)

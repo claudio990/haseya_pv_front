@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -84,6 +84,7 @@ export class PvComponent {
   ticket: any[] = [];
   ticketGrouped: any[] = [];
   selectedComensal: any = 1;
+  @ViewChild('paymentFormSection') paymentFormSection!: ElementRef;
 
   // variables para ticket
   @ViewChild('ticketRef') ticketRef!: ElementRef;
@@ -107,6 +108,9 @@ export class PvComponent {
   environment: any = {};
   logoBase64: any;
   typesPays: any = [];
+  comensalNotes: any[] = [];
+  savingNotes: boolean[] = [];
+  productsTicketPrint: any = [];
 
   // total: number = 0;
   constructor(private fb: FormBuilder, 
@@ -115,7 +119,8 @@ export class PvComponent {
               private ticketService:TicketService,
               private financeService: FinanzasService,
               public dialog: MatDialog,
-              private http: HttpClient
+              private http: HttpClient,
+              private cdr: ChangeDetectorRef
               )
   {
 
@@ -141,6 +146,7 @@ export class PvComponent {
   bandWaiter: boolean = false;
 
   ngOnInit() {
+    
     this.environment = environment;
     this.isLoading = true; // activa loading
     this.financeService.getTypes()
@@ -218,6 +224,18 @@ export class PvComponent {
   getComensales(): number[] {
     const cantidad = this.ticketActual?.quantity || 1;
     return Array.from({ length: cantidad }, (_, i) => i + 1);
+  }
+
+  initializeComensalNotes(): void {
+    // Rellenamos el array de notas para cada comensal
+    for (let i = 0; i < this.ticketActual.quantity; i++) {
+      this.comensalNotes.push({
+        comensal: i + 1,
+        note: '', // Nota inicial vacía
+        id_command: this.ticketActual.id // Asociar con el ID de la comanda
+      });
+      this.savingNotes.push(false); // Inicializamos el estado de guardado
+    }
   }
 
 
@@ -310,6 +328,8 @@ export class PvComponent {
         this.isOpenTicket = true
         this.productsTicket = data.products
         this.isLoading = false; // desactiva loading
+        
+        this.initializeComensalNotes();
       }, 
       error:(e) => {
 
@@ -324,14 +344,25 @@ export class PvComponent {
     this.isOpenTicket = false;
     this.pendingItems = [];
     this.showTicket = false;
+    this.comensalNotes = [];
     
     this.getSells();
     this.getTables();
+
   }
 
   
   selectCategory(cat: any) {
     this.selectedCategory = cat;
+  }
+
+  onComensalChange(): void {
+    // Cuando el comensal cambia, regresa a la primera categoría
+    if (this.categories && this.categories.length > 0) {
+      this.selectedCategory = this.categories[0];
+     }
+    // Aquí también podrías cargar/filtrar productos específicos para el nuevo comensal
+    // si tu lógica lo requiere.
   }
 
   
@@ -362,6 +393,22 @@ export class PvComponent {
       this.bandDiscount = 2;
     }
 
+  }
+
+  onNoteChange(event: Event, comensalIndex: number): void {
+    const comensalNum = comensalIndex + 1; // El número de comensal (1-basado)
+    const noteContent = event;
+
+    // Actualiza la nota en nuestro modelo local
+    const noteEntry = this.comensalNotes.find(n => n.comensal === comensalNum);
+    if (noteEntry) {
+      noteEntry.note = noteContent;
+
+      // Deshabilita el textarea mientras se guarda
+      this.savingNotes[comensalIndex] = true;
+
+    }
+    
   }
   
   
@@ -405,7 +452,6 @@ export class PvComponent {
   }
   
   sendOrder() {
-    console.log(this.pendingItems);
     if (this.pendingItems.length === 0) {
       Swal.fire('No hay productos nuevos para enviar');
       return;
@@ -417,27 +463,32 @@ export class PvComponent {
       quantity: item.quantity,
       simple_price: item.cost,
       total: item.cost * item.quantity,
-      comensal: item.comensal 
+      comensal: item.comensal
     }));
     // Llamada al backend usando productService
-    this.productService.addProductsToTicket(payload, this.ticketActual.id, localStorage.getItem('id_store')).subscribe({
+    this.productService.addProductsToTicket(this.comensalNotes, payload, this.ticketActual.id, localStorage.getItem('id_store')).subscribe({
       next: () => {
         // Fusionar a los productos ya enviados
         this.pendingItems.forEach(p => {
-          const found = this.productsTicket.find(x => x.code === p.code);
+          const found = this.productsTicket.find(x => x.id_product === p.code);
           if (found) {
             found.quantity += p.quantity;
             found.total += p.cost * p.quantity; // también actualizas el total si ya existe
           } else {
             this.productsTicket.push({ 
-              ...p,
-              total: p.cost * p.quantity
+             id_product: p.code, // <-- ¡Este es el cambio más importante!
+              name: p.name,
+              quantity: p.quantity,
+              price: p.cost, // <-- Es bueno tener 'price' unitario además de 'total'
+              total: p.cost * p.quantity,
+              comensal: p.comensal,
             });
           }
         });
         
         this.pendingItems = [];
-        
+        this.comensalNotes.map((nota: any) => nota.note = '')
+        this.getGroupedTicketItems()
         Swal.fire('Comanda Enviada');
       },
       error: () => {
@@ -446,17 +497,6 @@ export class PvComponent {
     });
   }
 
-  getComensalesFromTicket(): number[] {
-    const comensales = (this.ticketActual?.products || [])
-      .map((p:any) => Number(p.comensal))
-      .filter((c:any) => !isNaN(c)) as number[];
-
-    return [...new Set(comensales)].sort((a, b) => a - b);
-  }
-
-  getProductosPorComensal(comensal: number): any[] {
-  return (this.ticketActual?.products || []).filter((p:any) => p.comensal === comensal);
-}
 
 
   getComensalProducts(comensal: number) {
@@ -476,6 +516,42 @@ export class PvComponent {
   {
     this.showPaymentForm = true;
 
+    setTimeout(() => {
+      if (this.paymentFormSection) {
+        // Hace scroll suavemente hasta el elemento
+        this.paymentFormSection.nativeElement.scrollIntoView({
+          behavior: 'smooth', // Desplazamiento suave
+          block: 'start'      // Alinea el inicio del elemento con el inicio de la vista
+        });
+      }
+    }, 100);
+
+  }
+
+  seeTicket()
+  {
+    this.showTicket = true;
+    this.getGroupedTicketItems()
+  }
+
+  getGroupedTicketItems() {
+   const groupedItems: { [id_product: number]: any } = {};
+   console.log(this.productsTicket);
+    this.productsTicket.forEach(item => {
+      if (groupedItems[item.id_product]) {
+        groupedItems[item.id_product].quantity += item.quantity;
+        groupedItems[item.id_product].total += item.total;
+      } else {
+        groupedItems[item.id_product] = { ...item };
+      }
+    });
+
+    this.productsTicketPrint = Object.values(groupedItems);
+
+    // Si todo lo demás falla, intenta esto (pero no debería ser necesario)
+    this.cdr.detectChanges();
+  
+    
   }
 
   chargeTicket() {

@@ -111,6 +111,8 @@ export class PvComponent {
   comensalNotes: any[] = [];
   savingNotes: boolean[] = [];
   productsTicketPrint: any = [];
+  ticketResume: boolean = false;
+  ticketComensal: boolean = false;
 
   // total: number = 0;
   constructor(private fb: FormBuilder, 
@@ -225,6 +227,17 @@ export class PvComponent {
     const cantidad = this.ticketActual?.quantity || 1;
     return Array.from({ length: cantidad }, (_, i) => i + 1);
   }
+  getComensalesFromTicket(): number[] {
+      const comensales = (this.ticketActual.products || [])
+        .map((p:any) => Number(p.comensal))
+        .filter((c:any) => !isNaN(c)) as number[];
+
+      return [...new Set(comensales)].sort((a, b) => a - b);
+    }
+
+    getProductosPorComensal(comensal: number): any[] {
+    return (this.ticketActual.products || []).filter((p:any) => p.comensal === comensal);
+  }
 
   initializeComensalNotes(): void {
     // Rellenamos el array de notas para cada comensal
@@ -319,7 +332,15 @@ export class PvComponent {
 
   openTicket(id:any)
   {
-    
+    let token = localStorage.getItem('token')
+        this.http.get(environment.url_api + 'logo-base64/' + this.store.image, {
+          responseType: 'text',
+          headers: {
+            Authorization: `Bearer ${token}` // debes obtener este token del sistema de auth
+          }
+        }).subscribe(base64 => {
+          this.logoBase64 = base64;
+        });
     this.isLoading = true; // activa loading
     this.ticketService.getTicket({id: id})
     .subscribe({
@@ -345,7 +366,8 @@ export class PvComponent {
     this.pendingItems = [];
     this.showTicket = false;
     this.comensalNotes = [];
-    
+    this.ticketComensal = false;
+    this.ticketResume = false;
     this.getSells();
     this.getTables();
 
@@ -531,12 +553,18 @@ export class PvComponent {
   seeTicket()
   {
     this.showTicket = true;
+    this.ticketResume = true;
     this.getGroupedTicketItems()
+  }
+
+  seeTicketComensal()
+  {
+    this.showTicket = true;
+    this.ticketComensal = true;
   }
 
   getGroupedTicketItems() {
    const groupedItems: { [id_product: number]: any } = {};
-   console.log(this.productsTicket);
     this.productsTicket.forEach(item => {
       if (groupedItems[item.id_product]) {
         groupedItems[item.id_product].quantity += item.quantity;
@@ -592,19 +620,8 @@ export class PvComponent {
     this.ticketService.payTicket(paymentData).subscribe({
       next: (res: any) => {
         Swal.fire('Pago exitoso');
-        // this.closeTicket();
+        
         this.showPaymentForm = false;
-        // this.getTables();
-        // this.getSells();
-        let token = localStorage.getItem('token')
-        this.http.get(environment.url_api + this.store.image, {
-          responseType: 'text',
-          headers: {
-            Authorization: `Bearer ${token}` // debes obtener este token del sistema de auth
-          }
-        }).subscribe(base64 => {
-          this.logoBase64 = base64;
-        });
   
         // Mostrar ticket y permitir impresión/WhatsApp
         this.showTicket = true;

@@ -56,7 +56,7 @@ export class StoreComponent implements OnInit{
 
 
   //table for tickets
-  displayedColumnsTickets: string[] = ['employee', 'total','method','start', 'end','options'];
+  displayedColumnsTickets: string[] = ['money_started', 'money_difference','start', 'end','options'];
   dataSourceTickets: MatTableDataSource<any>;
   @ViewChild('ticketsPaginator') ticketsPaginator: MatPaginator;
 
@@ -107,7 +107,7 @@ export class StoreComponent implements OnInit{
       this.store = res;
     })
 
-    this.getSells();
+    this.getBoxes();
     this.getProducts();
     this.getEmployees();
     this.getIngredients();
@@ -139,17 +139,17 @@ export class StoreComponent implements OnInit{
     })
   }
 
-  getSells()
+  getBoxes()
   {
-    this.ticketService.getAllTickets({id_store: this.id_store}).
-    subscribe((res:any) => {
-      console.log(res);
+    this.ticketService.getBoxes({id_store: this.id_store})
+    .subscribe((res:any) => {
       
       res.reverse();
       this.tickets = res;
       this.dataSourceTickets = new MatTableDataSource(this.tickets);
       this.dataSourceTickets.paginator = this.ticketsPaginator;
       this.dataSourceTickets.sort = this.sort;
+
     })
   }
 

@@ -1,92 +1,70 @@
 <div class="main">
 
     <div class="head_main">
-        <h3>Deuda Total: {{totalDeuda}}</h3>
-        <button mat-raised-button (click)="openDialog()" style="margin-right: 150px;">Abonar</button>
+        <h3>Tickets</h3>
         <button mat-raised-button [routerLink]="['../../client']">Regresar</button>
     </div>
 
-    <div class="table_main">
-        <h3>Abonos</h3>
+   <div class="table_main">
         <mat-form-field>
-        <mat-label>Filtrar</mat-label>
-        <input matInput (keyup)="applyFilter($event)" placeholder="Ex. Mia" #input>
+        <mat-label>Filter</mat-label>
+        <input matInput (keyup)="applyFilterTickets($event)" placeholder="Ex. Mia" #input>
         </mat-form-field>
         
         <div class="mat-elevation-z8">
-        <table mat-table [dataSource]="dataSourceAbonos" matSort>
+        <table mat-table [dataSource]="dataSourceTickets" matSort>
         
-           
-            <ng-container matColumnDef="total">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Total </th>
-            <td mat-cell *matCellDef="let row">$ {{row.total}} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="type">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Tipo de Pago </th>
-            <td mat-cell *matCellDef="let row"> {{row.type}} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="date">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Fecha </th>
-                <td mat-cell *matCellDef="let row"> {{row.date | date: 'EEEE, d MMMM, y'}} </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumnsAbonos"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumnsAbonos;"></tr>
+            <!-- ID Column -->
+            <!-- <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+            <td mat-cell *matCellDef="let row"> {{row.id}} </td>
+            </ng-container> -->
         
-            <!-- Row shown when there is no matching data. -->
-            <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell" colspan="4">No data matching the filter "{{input.value}}"</td>
-            </tr>
-        </table>
         
-        <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
-        </div>
-
-    </div>
-
-
-    <div class="table_main" style="margin-top: 50px; margin-bottom: 50px;">
-        <h3>Tickets</h3>
-        <mat-form-field>
-        <mat-label>Filtrar</mat-label>
-        <input matInput (keyup)="applyFilter($event)" placeholder="Ex. Mia" #input>
-        </mat-form-field>
-        
-        <div class="mat-elevation-z8">
-        <table mat-table [dataSource]="dataSource" matSort>
-        
-           
-            <ng-container matColumnDef="subtotal">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Sub Total </th>
-            <td mat-cell *matCellDef="let row">$ {{row.subtotal}} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="discount">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Descuento </th>
-            <td mat-cell *matCellDef="let row">$ {{row.discount}} </td>
+            <!-- Name Column -->
+            <ng-container matColumnDef="employee">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Empleado </th>
+                <td mat-cell *matCellDef="let row"> {{row.employee}} </td>
             </ng-container>
 
             <ng-container matColumnDef="total">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> Total </th>
-                <td mat-cell *matCellDef="let row">$ {{row.total}} </td>
-            </ng-container>
-            <ng-container matColumnDef="date">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Fecha </th>
-                <td mat-cell *matCellDef="let row"> {{row.date | date: 'EEEE, d MMMM, y'}} </td>
+                <td mat-cell *matCellDef="let row"> {{row.total}} </td>
             </ng-container>
 
-             <!-- Fruit Column -->
-             <ng-container matColumnDef="options">
+            <ng-container matColumnDef="method">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Método de Pago </th>
+                <td mat-cell *matCellDef="let row"> {{row.method !== null ? row.method : 'Ticket Abierto'}} </td>
+            </ng-container>
+
+            
+
+            <ng-container matColumnDef="start">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Hora Inicio </th>
+                <td mat-cell *matCellDef="let row"> {{row.created_at |  date: 'd MMMM, y HH:mm'  }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="end">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Hora Cerrada </th>
+                <td mat-cell *matCellDef="let row"> {{row.updated_at |  date: 'HH:mm' }} </td>
+            </ng-container>
+        
+
+
+        
+            
+    
+                <!-- Fruit Column -->
+                <ng-container matColumnDef="options">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> Opciones </th>
                 <td mat-cell *matCellDef="let row"> 
-                    <button class="btn btn-primary"  [routerLink]="['../../see-ticket', row.id]">Ver Ticket</button>    
+                    <a mat-raised-button [routerLink]="['../../see-ticket', row.id]"><i class="bi bi-eye"></i> Ver Ticket</a>
+                    
                 </td>
                 </ng-container>
         
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-header-row *matHeaderRowDef="displayedColumnsTickets"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumnsTickets;"></tr>
         
             <!-- Row shown when there is no matching data. -->
             <tr class="mat-row" *matNoDataRow>
@@ -94,10 +72,70 @@
             </tr>
         </table>
         
-        <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
+        <mat-paginator #ticketsPaginator="matPaginator" [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
         </div>
-
+    
     </div>
+
+
+
+     <div class="head_main">
+        <h3>Productos Vendidos</h3>
+    </div>
+
+   <div class="table_main">
+        <mat-form-field>
+        <mat-label>Filter</mat-label>
+        <input matInput (keyup)="applyFilterProducts($event)" placeholder="Ex. Mia" #input>
+        </mat-form-field>
+        
+        <div class="mat-elevation-z8">
+        <table mat-table [dataSource]="dataSourceProducts" matSort>
+        
+            <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Producto </th>
+                <td mat-cell *matCellDef="let row"> {{row.product_name}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="total">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Cantidad Vendida </th>
+                <td mat-cell *matCellDef="let row"> {{row.total_quantity_sold}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="revenue">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Total vendido </th>
+                <td mat-cell *matCellDef="let row"> {{row.total_revenue}} </td>
+            </ng-container>
+
+        
+
+
+        
+            
+    
+                <!-- Fruit Column -->
+                <ng-container matColumnDef="options">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Opciones </th>
+                <td mat-cell *matCellDef="let row"> 
+                    <a mat-raised-button [routerLink]="['../../see-ticket', row.id]"><i class="bi bi-eye"></i> Ver Ticket</a>
+                    
+                </td>
+                </ng-container>
+        
+            <tr mat-header-row *matHeaderRowDef="displayedColumnsProducts"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumnsProducts;"></tr>
+        
+            <!-- Row shown when there is no matching data. -->
+            <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="4">No data matching the filter "{{input.value}}"</td>
+            </tr>
+        </table>
+        
+        <mat-paginator #productsPaginator="matPaginator" [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
+        </div>
+    
+    </div>
+                
     
       
 </div>

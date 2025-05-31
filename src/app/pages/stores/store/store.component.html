@@ -18,29 +18,18 @@
                     <div class="mat-elevation-z8">
                     <table mat-table [dataSource]="dataSourceTickets" matSort>
                     
-                        <!-- ID Column -->
-                        <!-- <ng-container matColumnDef="id">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
-                        <td mat-cell *matCellDef="let row"> {{row.id}} </td>
-                        </ng-container> -->
                     
                     
                         <!-- Name Column -->
-                        <ng-container matColumnDef="employee">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header> Empleado </th>
-                            <td mat-cell *matCellDef="let row"> {{row.employee}} </td>
+                        <ng-container matColumnDef="money_started">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header> Dinero Al incio </th>
+                            <td mat-cell *matCellDef="let row"> {{row.money_started}} </td>
                         </ng-container>
 
-                        <ng-container matColumnDef="total">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header> Total </th>
-                            <td mat-cell *matCellDef="let row"> {{row.total}} </td>
+                        <ng-container matColumnDef="money_difference">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header> Diferencia al cerrar caja </th>
+                            <td mat-cell *matCellDef="let row"> {{row.is_closed === 1 ?  (row.money_difference * -1) : 'Caja Abierta'}} </td>
                         </ng-container>
-
-                        <ng-container matColumnDef="method">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header> Método de Pago </th>
-                            <td mat-cell *matCellDef="let row"> {{row.method !== null ? row.method : 'Ticket Abierto'}} </td>
-                        </ng-container>
-
                         
 
                         <ng-container matColumnDef="start">
@@ -50,7 +39,7 @@
             
                         <ng-container matColumnDef="end">
                             <th mat-header-cell *matHeaderCellDef mat-sort-header> Hora Cerrada </th>
-                            <td mat-cell *matCellDef="let row"> {{row.updated_at |  date: 'HH:mm' }} </td>
+                            <td mat-cell *matCellDef="let row"> {{row.is_closed === 1 ? (row.updated_at |  date: 'HH:mm')  : 'Abierto'}} </td>
                         </ng-container>
                     
 
@@ -62,7 +51,7 @@
                          <ng-container matColumnDef="options">
                             <th mat-header-cell *matHeaderCellDef mat-sort-header> Opciones </th>
                             <td mat-cell *matCellDef="let row"> 
-                              <a mat-raised-button [routerLink]="['../../see-ticket', row.id]"><i class="bi bi-eye"></i> Ver Ticket</a>
+                              <a mat-raised-button [routerLink]="['../../tickets', row.id]"><i class="bi bi-eye"></i> Ver Ticket</a>
                                
                             </td>
                             </ng-container>

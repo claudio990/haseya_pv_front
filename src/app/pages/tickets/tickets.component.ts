@@ -26,89 +26,77 @@ export class TicketsComponent implements OnInit{
   dataSource: MatTableDataSource<any>;
   dataSourceAbonos: MatTableDataSource<any>;
   tickets: any = [];
-  abonos:any = [];
-  id_client: any;
-  totalDeuda: any = 0;
+  topProducts: any = [];
+  id_box: any;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginatorAbono: MatPaginator;
   @ViewChild(MatSort) sortAbono: MatSort;
 
+
+   //table for tickets
+  displayedColumnsTickets: string[] = ['employee', 'total','method','start', 'end','options'];
+  dataSourceTickets: MatTableDataSource<any>;
+  @ViewChild('ticketsPaginator') ticketsPaginator: MatPaginator;
+
+
+   //table for tickets
+  displayedColumnsProducts: string[] = ['name', 'total','revenue', 'options'];
+  dataSourceProducts: MatTableDataSource<any>;
+  @ViewChild('productsPaginator') productsPaginator: MatPaginator;
+
+
   constructor(private service: TicketService, private route: ActivatedRoute, public dialog: MatDialog) {
-
-    
-    
-
     
   }
   ngOnInit() {
-    this.id_client = this.route.snapshot.paramMap.get('id');
-    this.service.getTickets({'id_client': this.id_client}).subscribe((res:any) => {
-      
-      res.map((key: any) => {
-        const difference = key.total - key.pagado;
-        this.tickets.push({id: key.id, subtotal: key.subtotal, discount: key.discount, date: key.created_at, difference: difference, total: key.total})
-      })
-      this.dataSource = new MatTableDataSource(this.tickets);
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-    })
-
-    this.service.getAbonos({'id_client': this.id_client}).subscribe((res:any) => {
-      res.abonos.map((key:any) =>{
-        this.abonos.push({total: key.amount, type: key.type_name, date: key.created_at});
-      })
-      this.totalDeuda = res.adeudoTotal;
-      this.dataSourceAbonos = new MatTableDataSource(this.abonos);
-      this.dataSourceAbonos.paginator = this.paginatorAbono;
-      this.dataSourceAbonos.sort = this.sortAbono;
-    })
+    this.id_box = this.route.snapshot.paramMap.get('id');
+    this.getSells();
+    this.getTopProducts();
 
   }
-  
 
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
-  }
-
-  applyFilterAbono(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSourceAbonos.filter = filterValue.trim().toLowerCase();
-
-    if (this.dataSourceAbonos.paginator) {
-      this.dataSourceAbonos.paginator.firstPage();
-    }
-  }
-
-  openDialog() {
-    const dialog = this.dialog.open(AddPayComponent, {
-      data: { id_client: this.id_client},
-    });
-    dialog.afterClosed().subscribe(() => {
-      this.abonos = [];
-
-      this.service.getAbonos({'id_client': this.id_client}).subscribe((res:any) => {
-        this.totalDeuda = res.adeudoTotal;
-        res.abonos.map((key:any) =>{
-          this.abonos.push({total: key.amount, type: key.type_name, date: key.created_at});
-        })
-        this.dataSourceAbonos = new MatTableDataSource(this.abonos);
-        this.dataSourceAbonos.paginator = this.paginatorAbono;
-        this.dataSourceAbonos.sort = this.sortAbono;
-      })
-    });
-  }
-
-
-  delete(id:any)
+   getSells()
   {
-
-  
+    this.service.getBoxTickets({id_box : this.id_box}).
+    subscribe((res:any) => {
+      
+      res.reverse();
+      this.tickets = res;
+      this.dataSourceTickets = new MatTableDataSource(this.tickets);
+      this.dataSourceTickets.paginator = this.ticketsPaginator;
+      this.dataSourceTickets.sort = this.sort;
+    })
   }
+
+  getTopProducts()
+  {
+    this.service.getTopSellingProductsByBox({id_box: this.id_box})
+    .subscribe((res: any) => 
+    {
+      this.dataSourceProducts = new MatTableDataSource(res.top_products);
+      this.dataSourceProducts.paginator = this.productsPaginator;
+      this.dataSourceProducts.sort = this.sort;
+    })
+  }
+  
+
+  applyFilterTickets(event: Event) {
+      const filterValue = (event.target as HTMLInputElement).value;
+      this.dataSourceTickets.filter = filterValue.trim().toLowerCase();
+  
+      if (this.dataSourceTickets.paginator) {
+        this.dataSourceTickets.paginator.firstPage();
+      }
+    }
+
+  applyFilterProducts(event: Event) {
+      const filterValue = (event.target as HTMLInputElement).value;
+      this.dataSourceProducts.filter = filterValue.trim().toLowerCase();
+  
+      if (this.dataSourceProducts.paginator) {
+        this.dataSourceProducts.paginator.firstPage();
+      }
+    }
 
 }

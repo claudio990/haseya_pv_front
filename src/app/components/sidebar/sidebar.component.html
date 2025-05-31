@@ -73,11 +73,17 @@
                 <p *ngIf="storage.bandActive">Punto de Venta</p>
             </a>
         </div>
+        <div class="page" *ngIf="bandGerente">
+            <a href="" class=""  [routerLink]="['comandas-gerentes']">
+                <i class="bi bi-ticket"></i>
+                <p *ngIf="storage.bandActive">Comandas</p>
+            </a>
+        </div>
 
         <div class="page" *ngIf="bandKitchen">
             <a href="" class=""  [routerLink]="['kitchen']">
-                <i class="bi bi-shop"></i>
-                <p *ngIf="storage.bandActive">Cocina</p>
+                <i class="bi bi-shop">Cocina</i>
+                <p *ngIf="storage.bandActive"></p>
             </a>
         </div>
       

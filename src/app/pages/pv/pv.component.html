@@ -133,6 +133,7 @@
              
          </div> 
    </mat-tab>
+   
 
    </mat-tab-group>
 
@@ -241,7 +242,8 @@
           <!-- Botones de comanda -->
           <button class="send-btn" [disabled]="pendingItems.length === 0" (click)="sendOrder()">Enviar comanda</button>
           <button class="clear-btn" [disabled]="pendingItems.length === 0" (click)="clearPending()">Limpiar no enviados</button>
- <button (click)="seeTicket()">Imprimir ticket</button>
+          <button class="send-btn" (click)="seeTicket()">Ticket Resumido</button>
+          <button class="send-btn" (click)="seeTicketComensal()">Ticket Por Comensal</button>
           <!-- Botón para cobrar -->
           <button class="pay-btn" *ngIf="!bandWaiter" [disabled]="productsTicket.length === 0" (click)="startPayment()">Cobrar</button>
         </div>
@@ -290,18 +292,52 @@
 
 
 
-<!-- TICKET PARA IMPRIMIR  -->
+<!-- TICKET PARA IMPRIMIR COMENSAL -->
  
 <button mat-raised-button (click)="closeTicket()"  *ngIf="showTicket">Atrás</button>
 
-<div #ticketRef id="ticket" class="ticket-content" *ngIf="showTicket">
+<div #ticketRef id="ticket" class="ticket-content" *ngIf="showTicket && ticketComensal">
   <div class="ticket-header">
     <img [src]="logoBase64" alt="Logo" width="80">
-    <p><strong>Restaurante {{store.name}}</strong><br><small>Gracias por su preferencia</small></p>
+    <p><strong>Restaurante {{store.name}}</strong><br><small>Gracias por su preferencia resumido</small></p>
   </div>
 
   <div class="ticket-body">
     <p><strong>Ticket:</strong> {{ ticketActual?.id }}</p>
+    <p><strong>Tipo de Pago:</strong> {{ ticketActual?.method }}</p>
+    <p><strong>Fecha:</strong> {{ currentDate | date:'short' }}</p>
+    <div style="height: 1px; width: 100%; background-color: black;"></div>
+
+     <div *ngFor="let comensal of getComensalesFromTicket()">
+          <p><strong>Comensal {{ comensal }}</strong></p>
+          <div *ngFor="let item of getProductosPorComensal(comensal)">
+            <p>{{ item.name }} x{{ item.quantity }} - ${{ item.total }}</p>
+          </div>
+          
+          <hr />
+        </div>
+    <div style="height: 1px; width: 100%; background-color: black;"></div>
+    <p><strong>Total:</strong> ${{ total }}</p>
+  </div>
+
+  <div class="ticket-footer">
+    <p>¡Vuelva pronto!</p>
+  </div>
+</div>
+
+
+
+<!-- TICKET PARA IMPRIMIR RESUMIDO -->
+
+<div #ticketRef id="ticket" class="ticket-content" *ngIf="showTicket && ticketResume">
+  <div class="ticket-header">
+    <img [src]="logoBase64" alt="Logo" width="80">
+    <p><strong>Restaurante {{store.name}}</strong><br><small>Gracias por su preferencia comensal</small></p>
+  </div>
+
+  <div class="ticket-body">
+    <p><strong>Ticket:</strong> {{ ticketActual?.id }}</p>
+    <p><strong>Tipo de Pago:</strong> {{ ticketActual?.method }}</p>
     <p><strong>Fecha:</strong> {{ currentDate | date:'short' }}</p>
     <div style="height: 1px; width: 100%; background-color: black;"></div>
 

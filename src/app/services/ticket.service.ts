@@ -30,6 +30,14 @@ export class TicketService {
   {
     return this.httpService.ejectQuery('getTicketsBox', query);
   }
+  getBoxTickets(query: any)
+  {
+    return this.httpService.ejectQuery('getBoxTickets', query);
+  }
+  getTopSellingProductsByBox(query: any)
+  {
+    return this.httpService.ejectQuery('getTopSellingProductsByBox', query);
+  }
 
   getTicket(query:any)
   {
@@ -64,6 +72,11 @@ export class TicketService {
   addBox(query:any)
   {
     return this.httpService.ejectPost('addBox', query);
+  }
+
+  getBoxes(query: any)
+  {
+    return this.httpService.ejectQuery('getBoxes', query);
   }
   
 

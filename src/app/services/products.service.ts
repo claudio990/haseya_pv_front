@@ -143,4 +143,9 @@ export class ProductsService {
   {
     return this.httpService.ejectPost('updateCommand', query);
   }
+
+  deleteCommand(query: any)
+  {
+    return this.httpService.ejectPost('deleteCommand', query);
+  }
 }

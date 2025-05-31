@@ -33,6 +33,7 @@ import { StoresComponent } from './pages/stores/stores.component';
 import { StoreComponent } from './pages/stores/store/store.component';
 import { MainComponent } from './pages/kitchen/main/main.component';
 import { TypePayComponent } from './pages/type-pay/type-pay.component';
+import { CommandsManagerComponent } from './pages/kitchen/commands-manager/commands-manager.component';
 
 export const routes: Routes = [
     {
@@ -127,6 +128,9 @@ export const routes: Routes = [
             },
             {
                 path: 'kitchen', component: MainComponent
+            },
+            {
+                path: 'comandas-gerentes', component: CommandsManagerComponent
             },
             {
                 path: 'pagos', component: TypePayComponent
